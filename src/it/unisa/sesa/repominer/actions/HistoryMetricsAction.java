@@ -1,5 +1,13 @@
 package it.unisa.sesa.repominer.actions;
 
+import it.unisa.sesa.repominer.db.ConnectionPool;
+import it.unisa.sesa.repominer.db.entities.Change;
+
+import java.sql.Connection;
+import java.util.List;
+
+import net.sf.jeasyorm.EntityManager;
+
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -29,6 +37,14 @@ public class HistoryMetricsAction implements IWorkbenchWindowActionDelegate {
 	 * @see IWorkbenchWindowActionDelegate#run
 	 */
 	public void run(IAction action) {
+		Connection c = ConnectionPool.getInstance().getConnection();
+		EntityManager em = EntityManager.getInstance(c);
+		List<Change> changes = em.find(Change.class, "select * from changes");
+		
+		for (Change change : changes) {
+			System.out.println(change);
+		}
+		ConnectionPool.getInstance().releaseConnection(c);
 		MessageDialog.openInformation(
 			window.getShell(),
 			"RepominerEvo",

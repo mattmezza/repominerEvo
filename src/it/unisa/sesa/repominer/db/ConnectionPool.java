@@ -8,7 +8,7 @@ import java.util.List;
 
 public class ConnectionPool {
 	private static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
-	private static final String DB_URL = "jdbc:mysql://localhost/remolicdev";
+	private static final String DB_URL = "jdbc:mysql://localhost/repominer";
 
 	// Database credentials
 	private static final String USER = "root";

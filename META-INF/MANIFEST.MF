@@ -8,3 +8,6 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
+Bundle-ClassPath: lib/jeasyorm-0.9/jeasyorm-0.9.jar,
+ lib/mysql-connector-java-5.1.30/mysql-connector-java-5.1.30-bin.jar,
+ .
