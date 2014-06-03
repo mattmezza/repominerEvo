@@ -1,0 +1,394 @@
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=ISO-8859-15">
+  <title>jEasyORM</title>
+  <style>
+    body {
+	    font-family: Serif;
+	    font-size: 12pt;
+	    margin: 2em;
+    }
+
+    h1, .title {
+	    font-family: Tahoma, Sans-Serif;
+	    font-size: 19pt;
+	    color: #202020;
+    }
+
+    h2, .title2 {
+	    font-family: Sans-Serif;
+	    font-size: 15pt;
+	    color: #DE003C;
+	    background-color: #FFFFFF;
+	    margin-bottom: 1em;
+	    margin-top: 1.5em;
+	    border-bottom: 1px solid #658ED0;
+	    padding: 3px;
+	    padding-left: 0px;
+    }
+
+    h3, .title3 {
+	    font-family: Sans-Serif;
+	    font-size: 13pt;
+	    color: #202020;
+	    font-weight: bold;
+	    margin-bottom: 1em;
+	    margin-top: 1.5em;
+    }
+
+    hr {
+	    margin-top: 1em;
+	    margin-bottom: 1em;
+    }
+
+    pre {
+	    font-family: Courier New, Courier;
+	    font-size: 10pt;
+	    background-color: #FAFAFA;
+	    padding: 0.5em;
+	    margin-left: 5em;
+	    margin-right: 5em;
+    }
+
+    .navigation {
+	    float: right;
+	    border: 1px solid #E0E0E0;
+	    padding: 1em;
+	    margin-left: 1em;
+	    line-height: 1.5em;
+	    background-color: #F0F0F0;
+    }
+
+    a {
+	    text-decoration: none;
+	    color: #0000ff;
+    }
+
+    a:hover {
+	    color: #ff0000;
+    }
+
+    table {
+	    border-collapse: collapse;
+	    border: 1px solid gray;
+	    margin-left: 4.5em;
+	    margin-right: 4.5em;
+	    padding: 0;
+    }
+
+    td,th {
+	    border: 1px solid gray;
+	    padding: 3px;
+	    font-family: Sans-Serif;
+	    font-size: 10pt;
+    }
+
+    tt {
+	    font-size: 10pt;
+    }
+
+    ul, ol {
+	    margin-left: 2em;
+	    margin-right: 2em;
+    }
+
+    p {
+	    margin-left: 2em;
+	    margin-right: 2em;
+    }
+  </style>
+
+  <!-- code highlighting -->
+  <link href="prettify.css" type="text/css" rel="stylesheet">
+  <script type="text/javascript" src="prettify.js"></script>
+</head>
+<body onload="prettyPrint()">
+
+  <h1>jEasyORM User Guide</h1>
+
+  <h2>Table of Contents</h2>
+  <ol>
+	  <li><a href="#introduction">Introduction</a></li>
+	  <li><a href="#quickstart">Quickstart</a></li>
+	  <li><a href="#mapping">Mapping</a></li>
+	  <li><a href="#database">Set up database</a></li>
+	  <li><a href="#comparison">Comparison with other ORMs</a></li>
+  </ol>
+
+  <a name="introduction"></a>
+  <div class="title2">Introduction</div>
+
+  <p>jEasyORM is a Java-based ORM/DAO tool with the following features:</p>
+  <ul>
+    <li>Use of POJOs as domain objects, no need to inherit from a base class,</li>
+    <li>Mapping POJOs to database tables without configuration,</li>
+    <li>Database-independent CRUD functionality, automatically uses auto-increment columns, 
+        sequences, etc. for primary keys depending on database,</li>
+    <li>Database-independent paging functionality,</li>
+    <li>No external dependencies,</li>
+    <li>Small (<50kB).</li>
+  </ul>
+
+  <p>Full functionality is currently supported for the following databases:</p>
+  <ul>
+    <li>H2</li>
+    <li>HSQLDB</li>
+    <li>Derby</li>
+    <li>MySQL</li>
+    <li>Oracle</li>
+    <li>PostgreSQL</li>
+  </ul>
+
+  <p>jEasyORM works around a <tt>java.sql.Connection</tt> object. This means that it does not care about customer query
+  languages (it uses plain SQL with placeholders, as <tt>PreparedStatement</tt> objects use), connection pool handling,
+  transaction handling (for the most part), and so on. This also means it is very flexible, and can be integrated with any
+  code that depends on JDBC (including code that already use another ORM/DAO tool).</p>
+
+  <p>jEasyORM does not require explicit mappings from POJOs to database tables. As long as there is some sort of naming
+  conventions that relate database names with POJO names, Persist will require virtually no mappings. It can, however, be
+  instructed to map Java classes and fields to database tables and columns using annotations.</p>
+
+  <p>Persist requires no singletons, no <tt>ThreadLocal</tt>'s, no global objects and no configuration files. It has
+  no external dependencies (although it will use Log4j, if available). It has a very small, robust and straightforward
+  codebase, which can be easily debugged in case you face an unforeseen problem.</p>
+
+
+
+  <a name="quickstart"></a>
+  <h2>Quickstart</h2>
+
+  <p>A jEasyORM entity manager only requires a <tt>java.sql.Connection</tt> to be created:</p>
+
+  <pre class="prettyprint">
+    EntityManager em = EntityManager.getInstance(conn);
+  </pre>
+
+  <p>jEasyORM can be used with any POJOs that can be mapped to a database table:</p>
+
+  <pre class="prettyprint">
+    // insert a new object
+    Person p = new Person("Joe", "Williams");
+    em.insert(p);
+    // the id was automatically determined by auto-increment or a sequence:
+    Long id = p.getId();
+
+    // update an object
+    p.setFirstName("John");
+    em.update(p);
+
+    // read from database
+    p = em.load(Person.class, id);
+
+    // delete
+    em.delete(p);
+  </pre>
+
+  <p>To find objects in the database, use any of the finder methods:</p>
+
+  <pre class="prettyprint">
+    // find a unique object, throw exception, when multiple results are returned
+    Person p = em.findUnique(Person.class, 
+        "select * from person where first_name = ? and last_name = ?",
+        "John", "Williams");
+
+    // find multiple objects:
+    List&lt;Person&gt; people = em.find(Person.class, 
+        "select * from person where last_name = ? order by first_name", 
+        "Bush");
+    // ... or shorter:
+    people = em.find(Person.class, 
+        "from person where last_name = ? order by first_name", "Bush");
+    // ... or even shorter:
+    people = em.find(Person.class, 
+        "where last_name = ? order by first_name", "Bush");
+
+    // only get a few objects of a possible large number of objects (paging):
+    int pageNumber = 27;
+    int pageSize = 10;
+    // the following will return records 270 to 279 in a list, 
+    // which additionally provides a totalSize
+    Page&lt;Person&gt; page = em.find(Person.class, pageNumber, pageSize, 
+        "order by last_name, first_name");
+    int totalNumberOfPeople = page.totalSize();
+  </pre>
+
+  <p>If you are working with a large number of objects, you can also use an iterator:</p>
+
+  <pre class="prettyprint">
+    Iterator&lt;Person&gt; it = iterator(Person.class, "order by last_name");
+    while (it.hasNext()) {
+      Person p = it.next();
+      ...
+    }
+  </pre>
+
+  <p>You can also return native objects:</p>
+
+  <pre class="prettyprint">
+    // find the number of objects:
+    int count2 = em.findUnique(int.class, "select count(*) from person");
+    // ... or shorter
+    int count = em.count("from person");
+
+    // get multiple native objects:
+    List&lt;String&gt; first_names = em.find(String.class, 
+        "select distinct first_name from person where last_name = ?", "Doe");
+  </pre>
+
+  <p>Finally you can just execute other statements:</p>
+
+  <pre class="prettyprint">
+    int numAffected = em.execute("delete from person where first_name = ?", "Meier");
+  </pre>
+
+  <a name="mapping"></a>
+  <h2>Mapping</h2>
+  
+  <p>Mapping POJOs to tables and mapping fields to columns is done with a name guesser.</p>
+  <p>E.g. the following POJO</p>
+
+  <pre class="prettyprint">
+    public class NicePerson {
+
+      private Long id;
+      private String firstName;
+      private String lastName;
+      private String notes;
+      private byte[] picture;
+
+      ...
+    }
+  </pre>
+
+  <p>will by default map to a table named <tt>NICEPERSON</tt>, <tt>NICE_PERSON</tt>, <tt>TNICEPERSON</tt> or <tt>TNICE_PERSON</tt>.</p>
+
+  <p>The field <tt>firstName</tt> will by default map to a column named <tt>FIRSTNAME</tt> or <tt>FIRST_NAME</tt>.</p>
+
+  <p>Of course it is easy to change the algorithm by providing a custom name guesser:</p>
+
+  <pre class="prettyPrint">
+    EntityManager em = EntityManager.getInstance(conn);
+    em.setNameGuesser(new NameGuesser() {
+      public String[] guessTableName(Class<?> entityClass) {
+        return new String[] { "TABLE_" + entityClass.getSimpleName().toUpperCase() };
+      }
+      public String[] guessColumnName(Class<?> entityClass, String field) {
+        return new String[] { "COL_" + field.toUpperCase(); };
+      }
+    });
+  </pre>
+
+  <p>You can also annotate POJOs and fields to specify database table and column names:</p>
+
+  <pre class="prettyprint">
+    @Table(schema="TEST", name="PERSON")
+    public class AnnotatedPerson {
+      
+      @Column(name="NAME") private String lastName;
+      ...
+    }
+  </pre>
+
+  <p>POJOs are mapped the first time they are used in a EntityManager method.
+      POJOs annotated with <tt>@Transient</tt> are not mapped to tables, but can only be used as
+      result of finders. Fields annotated with <tt>@Transient</tt> are also not mapped.</p>
+  
+  <pre class="prettyprint">
+    @Transient
+    public class Helper {
+      private f1;
+      ...
+    }
+
+    public class OtherPerson {
+
+      private Long id;
+      private String firstName;
+      private String lastName;
+      @Transient private String name;
+
+      @Transient
+      public String getFullName() {
+        if (name == null) name = firstName + " " + lastName;
+        return name;
+      }
+
+      ...
+    }
+  </pre>
+
+  <p>If more than one connection is used, you have to specify a name, when
+      getting a EntityManager instance to account for possibly different mappings:</p>
+
+  <pre class="prettyprint">
+    Connection mysqlConn = ...
+    Connection oracleConn = ...
+    EntityManager mysqlEm = EntityManager.getInstance("mysql", mysqlConn);
+    EntityManager oracleEm = EntityManager.getInstance("oracle", oracleConn);
+
+    // copying persons from MySQL to Oracle:
+    Iterator&lt;Person&gt; it = mysqlEm.iterator(Person.class, "order by last_name");
+    while (it.hasNext()) {
+      Person p = it.next();
+      oracleEm.insert(p);
+    }
+  </pre>
+
+  <a name="database"></a>
+  <h2>Set up database</h2>
+
+  <p>You create your database tables with normal <tt>create table</tt> scripts.</p>
+
+  <p>You have to ensure the following:</p>
+
+  <ul>
+    <li>IDs are needed for all POJOs, that need to be loaded, updated or deleted.</li>
+    <li>Define your IDs as <tt>primary key</tt>.</li>
+    <li>If the database supports auto increment columns, specify this for your keys.</li>
+    <li>If the database does not support auto increment columns, supply a sequence named <tt>JEASYORM_SEQUENCE</tt>.</li>
+  </ul>
+
+  <a name="comparison"></a>
+  <h2>Comparison with other ORMs</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th width="40%"></th>
+        <th><a href="http://jeasyorm.sourceforge.net">jEasyORM</a></th>
+        <th><a href="http://persist.googlecode.com">Persist</a></th>
+        <th><a href="http://www.ammentos.org">Ammentos</a></th>
+        <th><a href="http://sequalite.sourceforge.net">SeQuaLite</a></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>Configurationless</td><td>Y</td><td>Y</td><td>N <sup>1</sup></td><td>N <sup>2</sup></tr>
+      <tr><td>Use of any POJO</td><td>Y</td><td>Y</td><td>Y <sup>1</sup></td><td>Y <sup>3</sup></td></tr>
+      <tr><td>Database independent</td><td>Y</td><td>Y</td><td>Y</td></tr>
+      <tr><td>Automatically use auto-increment or sequence for primary keys on insert</td><td>Y</td><td>N</td><td>Y</td><td>N <sup>2</sup></td></tr>
+      <tr><td>Database-independent paging</td><td>Y</td><td>N</td><td>N</td><td>Y</td></tr>
+      <tr><td>Cascaded load/save</td><td>N</td><td>N</td><td>Y</td><td>Y <sup>3</sup></td></tr>
+      <tr><td>Custom query language/API</td><td>N</td><td>N</td><td>Y</td><td>Y</td></tr>
+      <tr><td>Transaction management</td><td>N</td><td>N</td><td>Y</td><td>N</td></tr>
+      <tr><td>Automatic table creation</td><td>N</td><td>N</td><td>N</td><td>N</td></tr>
+      <tr><td>No external dependencies</td><td>Y</td><td>Y</td><td>Y</td><td>Y</td></tr>
+      <tr><td>Small (less than 100kB)</td><td>Y (20kB)</td><td>Y (30kB)</td><td>N (110kB)</td><td>Y (75kB)</td></tr>
+      <tr><td colspan="4"><strong>Tested with</strong></td></tr>
+      <tr><td>DB2</td><td>N</td><td>Y</td><td></td><td></td></tr>
+      <tr><td>Derby</td><td>Y</td><td>Y</td><td></td><td></td></tr>
+      <tr><td>H2</td><td>Y</td><td>Y</td><td></td><td></td></tr>
+      <tr><td>HSQLDB</td><td>Y</td><td>Y</td><td></td><td></td></tr>
+      <tr><td>MySQL</td><td>Y</td><td>Y</td><td></td><td></td></tr>
+      <tr><td>Oracle</td><td>Y</td><td>Y</td><td></td><td></td></tr>
+      <tr><td>PostgreSQL</td><td>Y</td><td>Y</td><td></td><td></td></tr>
+      <tr><td>SQL Server</td><td>N</td><td>Y</td><td></td><td></td></tr>
+    </tbody>
+  </table>
+
+  <p>Remarks:</p>
+  <ol>
+    <li>POJOs need to be annotated</li>
+    <li>XML configuration required</li>
+    <li>Lazy loading only supported, when extending class SeQuaLiteModel</li>
+  </ol>
+
+</body></html>
