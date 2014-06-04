@@ -2,6 +2,7 @@ package it.unisa.sesa.repominer.db.entities;
 
 import net.sf.jeasyorm.annotation.Column;
 import net.sf.jeasyorm.annotation.Table;
+import net.sf.jeasyorm.annotation.Transient;
 
 @Table(name = "source_containers")
 public class SourceContainer {
@@ -10,6 +11,7 @@ public class SourceContainer {
 	@Column(name = "project")
 	private Integer projectId;
 	private Integer importId;
+	private String name;
 
 	public SourceContainer() {
 	}
@@ -47,7 +49,15 @@ public class SourceContainer {
 	@Override
 	public String toString() {
 		return "SourceContainer [id=" + id + ", projectId=" + projectId
-				+ ", importId=" + importId + "]";
+				+ ", importId=" + importId + ", name=" + name + "]";
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	@Override
