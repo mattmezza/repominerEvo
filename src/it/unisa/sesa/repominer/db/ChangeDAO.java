@@ -18,4 +18,12 @@ public class ChangeDAO {
 		return changes;
 	}
 	
+	public Change getChangeById(Integer pId) {
+		Connection connection = ConnectionPool.getInstance().getConnection();
+		EntityManager em = EntityManager.getInstance(connection);
+		Change change = em.load(Change.class, pId);
+		ConnectionPool.getInstance().releaseConnection(connection);
+		return change;
+	}
+	
 }

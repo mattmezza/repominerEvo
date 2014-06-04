@@ -18,4 +18,12 @@ public class ChangeForCommitDAO {
 		return changesForCommit;
 	}
 	
+	public ChangeForCommit getChangeForCommitById(Integer pId) {
+		Connection connection = ConnectionPool.getInstance().getConnection();
+		EntityManager em = EntityManager.getInstance(connection);
+		ChangeForCommit changeForCommit = em.load(ChangeForCommit.class, pId);
+		ConnectionPool.getInstance().releaseConnection(connection);
+		return changeForCommit;
+	}
+	
 }

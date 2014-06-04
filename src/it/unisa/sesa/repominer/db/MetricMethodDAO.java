@@ -27,4 +27,15 @@ public class MetricMethodDAO {
 		return methodMetrics;
 	}
 	
+	public MetricMethod getMetric(Metric pMetric, Method pMethod) {
+		Connection connection = ConnectionPool.getInstance().getConnection();
+		EntityManager em = EntityManager.getInstance(connection);
+		MetricMethod metricMethod = em.findUnique(MetricMethod.class, "where method=? and metric=?", pMethod.getId(), pMetric.getId());
+		metricMethod.setDescription(pMetric.getDescription());
+		metricMethod.setName(pMetric.getName());
+		metricMethod.setId(pMetric.getId());
+		ConnectionPool.getInstance().releaseConnection(connection);
+		return metricMethod;
+	}
+	
 }
