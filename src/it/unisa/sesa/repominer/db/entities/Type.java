@@ -8,7 +8,7 @@ public class Type {
 
 	@Column(name = "id")
 	private Integer id;
-	@Column(name = "inport_id")
+	@Column(name = "import_id")
 	private Integer importId;
 	@Column(name = "lines_number")
 	private Integer linesNumber;
@@ -16,7 +16,7 @@ public class Type {
 	private String srcFileLocation;
 	@Column(name = "header_file_location")
 	private String headerFileLocation;
-	@Column(name = "source_conteiner")
+	@Column(name = "source_container")
 	private Integer sourceContainer;
 
 	public Type(Integer id, Integer importId, Integer linesNumber,
