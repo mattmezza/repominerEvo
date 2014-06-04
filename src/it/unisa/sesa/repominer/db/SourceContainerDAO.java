@@ -1,5 +1,6 @@
 package it.unisa.sesa.repominer.db;
 
+import it.unisa.sesa.repominer.db.entities.Import;
 import it.unisa.sesa.repominer.db.entities.Project;
 import it.unisa.sesa.repominer.db.entities.SourceContainer;
 
@@ -19,8 +20,10 @@ public class SourceContainerDAO {
 	public List<SourceContainer> getPackages(Project pProject) {
 		Connection connection = ConnectionPool.getInstance().getConnection();
 		EntityManager entityManager = EntityManager.getInstance(connection);
-		List<SourceContainer> packages = entityManager.find(
-				SourceContainer.class, "where project = ?", pProject.getId());
+		List<SourceContainer> packages = entityManager
+				.find(SourceContainer.class,
+						"select source_containers.id, project, import_id, name from source_containers join import on import_id=import.id where project = ?",
+						pProject.getId());
 		ConnectionPool.getInstance().releaseConnection(connection);
 		return packages;
 	}
@@ -36,6 +39,9 @@ public class SourceContainerDAO {
 		EntityManager entityManager = EntityManager.getInstance(connection);
 		SourceContainer aPackage = entityManager.findUnique(
 				SourceContainer.class, "where id = ?", pId);
+		Import anImport = entityManager.load(Import.class,
+				aPackage.getImportId());
+		aPackage.setName(anImport.getName());
 		ConnectionPool.getInstance().releaseConnection(connection);
 		return aPackage;
 	}
