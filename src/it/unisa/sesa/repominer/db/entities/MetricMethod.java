@@ -4,7 +4,7 @@ import net.sf.jeasyorm.annotation.Column;
 import net.sf.jeasyorm.annotation.Table;
 
 @Table(name = "metrics_method")
-public class MetricMethod {
+public class MetricMethod extends Metric {
 
 	@Column(name = "method")
 	private Integer methodId;
