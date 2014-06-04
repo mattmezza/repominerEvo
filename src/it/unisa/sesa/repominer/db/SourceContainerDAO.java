@@ -24,4 +24,19 @@ public class SourceContainerDAO {
 		ConnectionPool.getInstance().releaseConnection(connection);
 		return packages;
 	}
+
+	/**
+	 * Returns a single package filled by id
+	 * 
+	 * @param pId
+	 * @return A SourceContainer object
+	 */
+	public SourceContainer getPackagesById(Integer pId) {
+		Connection connection = ConnectionPool.getInstance().getConnection();
+		EntityManager entityManager = EntityManager.getInstance(connection);
+		SourceContainer aPackage = entityManager.findUnique(
+				SourceContainer.class, "where id = ?", pId);
+		ConnectionPool.getInstance().releaseConnection(connection);
+		return aPackage;
+	}
 }

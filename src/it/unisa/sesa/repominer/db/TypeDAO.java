@@ -19,9 +19,23 @@ public class TypeDAO {
 	public List<Type> getClassesByPackage(SourceContainer pSourceContainer) {
 		Connection connection = ConnectionPool.getInstance().getConnection();
 		EntityManager entityManager = EntityManager.getInstance(connection);
-		List<Type> types = entityManager.find(Type.class, "where id = ?",
-				pSourceContainer.getId());
+		List<Type> types = entityManager.find(Type.class,
+				"where source_container = ?", pSourceContainer.getId());
 		ConnectionPool.getInstance().releaseConnection(connection);
 		return types;
+	}
+
+	/**
+	 * Returns a single class filled by id
+	 * 
+	 * @param pId
+	 * @return A Type object
+	 */
+	public Type getClassById(Integer pId) {
+		Connection connection = ConnectionPool.getInstance().getConnection();
+		EntityManager entityManager = EntityManager.getInstance(connection);
+		Type type = entityManager.findUnique(Type.class, "where id = ?", pId);
+		ConnectionPool.getInstance().releaseConnection(connection);
+		return type;
 	}
 }

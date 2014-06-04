@@ -23,7 +23,7 @@ public class ProjectDAO {
 	}
 
 	/**
-	 * Returns project searched by name
+	 * Returns a project searched by name
 	 * 
 	 * @param pName
 	 * @return A Project class

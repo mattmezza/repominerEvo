@@ -15,12 +15,25 @@ public class IssueDAO {
 	 * @param pProject
 	 * @return A list of Issue objects
 	 */
-	public List<Issue> getIssueByProject(Project pProject) {
+	public List<Issue> getIssuesByProject(Project pProject) {
 		Connection connection = ConnectionPool.getInstance().getConnection();
 		EntityManager entityManager = EntityManager.getInstance(connection);
 		List<Issue> issues = entityManager.find(Issue.class,
 				"where project = ?", pProject.getId());
 		ConnectionPool.getInstance().releaseConnection(connection);
 		return issues;
+	}
+	
+	/**
+	 * Returns a single issue filled by id
+	 * @param pId
+	 * @return A Issue object
+	 */
+	public Issue getIssueById(Integer pId) {
+		Connection connection = ConnectionPool.getInstance().getConnection();
+		EntityManager entityManager = EntityManager.getInstance(connection);
+		Issue issue = entityManager.findUnique(Issue.class, "where id = ?", pId);
+		ConnectionPool.getInstance().releaseConnection(connection);
+		return issue;
 	}
 }
