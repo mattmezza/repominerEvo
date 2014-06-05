@@ -11,7 +11,9 @@ import it.unisa.sesa.repominer.db.entities.SourceContainer;
 import it.unisa.sesa.repominer.db.entities.Type;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class PackageMetrics {
 
@@ -65,16 +67,57 @@ public class PackageMetrics {
 		}
 
 		int sumLines = 0;
-		
+
 		// Return 0 if package has not changes
-		if (modifiedClassForPackage.size()==0){
+		if (modifiedClassForPackage.size() == 0) {
 			return 0;
 		}
-		
+
 		for (Type type : modifiedClassForPackage) {
 			sumLines += type.getLinesNumber();
 		}
 		return sumLines / modifiedClassForPackage.size();
 
+	}
+
+	public Map<String, Double> getInsertionsAndDelitionsInfo(
+			SourceContainer pSourceContainer) {
+		Map<String, Double> info = new HashMap<>();
+		double sum = 0;
+		int max = 0;
+		int howMany = 0;
+
+		List<Type> types = new TypeDAO().getClassesByPackage(pSourceContainer);
+
+		Project project = new ProjectDAO().getProject(pSourceContainer
+				.getProjectId());
+
+		List<Change> changes = new ChangeDAO().getChangesOfProject(project);
+		for (Change change : changes) {
+
+			List<ChangeForCommit> changesForCommit = new ChangeForCommitDAO()
+					.getChangeForCommitOfChange(change);
+			for (ChangeForCommit changeForCommit : changesForCommit) {
+
+				for (Type currType : types) {
+					if (currType.getSrcFileLocation().equals(
+							changeForCommit.getModifiedFile())) {
+						int insOrDel = changeForCommit.getInsertions()
+								+ changeForCommit.getDeletions();
+						if (insOrDel > max)
+							max = insOrDel;
+						sum += insOrDel;
+						howMany++;
+						break;
+					}
+				}
+			}
+		}
+
+		Double mean = new Double(sum / howMany);
+		info.put("sum", new Double(sum));
+		info.put("mean", mean);
+		info.put("max", new Double(max));
+		return info;
 	}
 }
