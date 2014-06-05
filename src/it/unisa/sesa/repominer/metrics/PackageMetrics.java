@@ -166,9 +166,102 @@ public class PackageMetrics {
 		return counter / occurrenceTable.size();
 	}
 
-	public Map<String, Double> getInsertionsAndDelitionsInfo(
+	public Integer getTotalInsertionsOrDeletionsNumber(
 			SourceContainer pSourceContainer) {
-		Map<String, Double> info = new HashMap<>();
+		int sum = 0;
+
+		List<Type> types = new TypeDAO().getClassesByPackage(pSourceContainer);
+
+		Project project = new ProjectDAO().getProject(pSourceContainer
+				.getProjectId());
+
+		List<Change> changes = new ChangeDAO().getChangesOfProject(project);
+		for (Change change : changes) {
+
+			List<ChangeForCommit> changesForCommit = new ChangeForCommitDAO()
+					.getChangeForCommitOfChange(change);
+			for (ChangeForCommit changeForCommit : changesForCommit) {
+
+				for (Type currType : types) {
+					if (currType.getSrcFileLocation().equals(
+							changeForCommit.getModifiedFile())) {
+						int insOrDel = changeForCommit.getInsertions()
+								+ changeForCommit.getDeletions();
+						sum += insOrDel;
+						break;
+					}
+				}
+			}
+		}
+		return sum;
+	}
+
+	public Integer getMaxInsertionsOrDeletionsNumber(
+			SourceContainer pSourceContainer) {
+		int max = 0;
+
+		List<Type> types = new TypeDAO().getClassesByPackage(pSourceContainer);
+
+		Project project = new ProjectDAO().getProject(pSourceContainer
+				.getProjectId());
+
+		List<Change> changes = new ChangeDAO().getChangesOfProject(project);
+		for (Change change : changes) {
+
+			List<ChangeForCommit> changesForCommit = new ChangeForCommitDAO()
+					.getChangeForCommitOfChange(change);
+			for (ChangeForCommit changeForCommit : changesForCommit) {
+
+				for (Type currType : types) {
+					if (currType.getSrcFileLocation().equals(
+							changeForCommit.getModifiedFile())) {
+						int insOrDel = changeForCommit.getInsertions()
+								+ changeForCommit.getDeletions();
+						if (insOrDel > max)
+							max = insOrDel;
+						break;
+					}
+				}
+			}
+		}
+		return max;
+	}
+
+	public Double getMeanInsertionsOrDeletionsNumber(
+			SourceContainer pSourceContainer) {
+		double sum = 0;
+		int howMany = 0;
+
+		List<Type> types = new TypeDAO().getClassesByPackage(pSourceContainer);
+
+		Project project = new ProjectDAO().getProject(pSourceContainer
+				.getProjectId());
+
+		List<Change> changes = new ChangeDAO().getChangesOfProject(project);
+		for (Change change : changes) {
+
+			List<ChangeForCommit> changesForCommit = new ChangeForCommitDAO()
+					.getChangeForCommitOfChange(change);
+			for (ChangeForCommit changeForCommit : changesForCommit) {
+
+				for (Type currType : types) {
+					if (currType.getSrcFileLocation().equals(
+							changeForCommit.getModifiedFile())) {
+						int insOrDel = changeForCommit.getInsertions()
+								+ changeForCommit.getDeletions();
+						sum += insOrDel;
+						howMany++;
+						break;
+					}
+				}
+			}
+		}
+		return new Double(sum / howMany);
+	}
+
+	public Double[] getInsertionsAndDelitionsInfo(
+			SourceContainer pSourceContainer) {
+		Double[] info = new Double[3];
 		double sum = 0;
 		int max = 0;
 		int howMany = 0;
@@ -200,10 +293,9 @@ public class PackageMetrics {
 			}
 		}
 
-		Double mean = new Double(sum / howMany);
-		info.put("sum", new Double(sum));
-		info.put("mean", mean);
-		info.put("max", new Double(max));
+		info[0] = new Double(sum);
+		info[1] = new Double(sum / howMany);
+		info[2] = new Double(max);
 		return info;
 	}
 

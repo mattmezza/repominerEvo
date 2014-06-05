@@ -5,6 +5,7 @@ import it.unisa.sesa.repominer.db.entities.Project;
 import it.unisa.sesa.repominer.db.entities.ProjectMetric;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.List;
 
 import net.sf.jeasyorm.EntityManager;
@@ -51,9 +52,34 @@ public class ProjectMetricDAO {
 		Connection connection = ConnectionPool.getInstance().getConnection();
 		EntityManager em = EntityManager.getInstance(connection);
 		try {
+			connection.setAutoCommit(false);
+			Metric metric = em.findUnique(Metric.class, "where name=?",
+					pProjectMetric.getName());
+			if (metric == null) {
+				Metric newMetric = new Metric();
+				newMetric.setDescription(pProjectMetric.getDescription());
+				newMetric.setName(pProjectMetric.getName());
+				Integer metricId = new MetricDAO().saveMetric(newMetric);
+				pProjectMetric.setMetricId(metricId);
+			} else {
+				pProjectMetric.setMetricId(metric.getId());
+			}
+			em.delete(pProjectMetric);
 			em.insert(pProjectMetric);
+			connection.commit();
 		} catch (RuntimeSQLException e) {
-			System.err.println("eccezione sollevata ProjectMetricDAO.java");
+			e.printStackTrace();
+		} catch (SQLException e) {
+			try {
+				connection.rollback();
+			} catch (SQLException e1) {
+				e1.printStackTrace();
+			}
+			e.printStackTrace();
+		}
+		try {
+			connection.setAutoCommit(true);
+		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 		ConnectionPool.getInstance().releaseConnection(connection);

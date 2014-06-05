@@ -347,7 +347,7 @@ DROP TABLE IF EXISTS `metrics`;
 CREATE TABLE `metrics` (
   `id` int(10) NOT NULL AUTO_INCREMENT,
   `name` varchar(20) DEFAULT NULL,
-  `description` varchar(20) DEFAULT NULL,
+  `description` varchar(256) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
@@ -379,7 +379,9 @@ CREATE TABLE `package_metrics` (
   `source_container` int(11) NOT NULL,
   `metric` int(11) NOT NULL,
   `value` double NOT NULL,
-  PRIMARY KEY (`source_container`,`metric`)
+  PRIMARY KEY (`source_container`,`metric`),
+  CONSTRAINT `package_metrics_ibfk_1` FOREIGN KEY (`source_container`) REFERENCES `source_containers` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `package_metrics_ibfk_2` FOREIGN KEY (`metric`) REFERENCES `metrics` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 
@@ -409,10 +411,12 @@ CREATE TABLE `parameters` (
 DROP TABLE IF EXISTS `project_metrics`;
 
 CREATE TABLE `project_metrics` (
-  `project` int(11) unsigned NOT NULL,
-  `metric` int(11) unsigned NOT NULL,
+  `project` int(11) NOT NULL,
+  `metric` int(11) NOT NULL,
   `value` double NOT NULL,
-  PRIMARY KEY (`project`,`metric`)
+  PRIMARY KEY (`project`,`metric`),
+  CONSTRAINT `project_metrics_ibfk_1` FOREIGN KEY (`project`) REFERENCES `projects` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `project_metrics_ibfk_2` FOREIGN KEY (`metric`) REFERENCES `metrics` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 
