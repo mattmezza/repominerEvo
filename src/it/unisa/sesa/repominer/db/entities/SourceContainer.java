@@ -2,7 +2,6 @@ package it.unisa.sesa.repominer.db.entities;
 
 import net.sf.jeasyorm.annotation.Column;
 import net.sf.jeasyorm.annotation.Table;
-import net.sf.jeasyorm.annotation.Transient;
 
 @Table(name = "source_containers")
 public class SourceContainer {
