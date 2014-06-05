@@ -22,5 +22,7 @@ public class HistoryMetricsCalculator {
 		System.out.println("Metrica NAUTH: " + NAUTH);
 		float changeSetSize = packageMetrics.getMeanDimensionOfModifiedFiles(pSourceContainer);
 		System.out.println("Metrica changeSetSize: " + changeSetSize);
+		float mean_NCHANGE = packageMetrics.getMeanNumberOfChange(pSourceContainer);
+		System.out.println("Metrica mean_NCHANGE " + mean_NCHANGE);
 	}
 }
