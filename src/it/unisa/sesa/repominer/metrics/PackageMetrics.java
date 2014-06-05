@@ -17,6 +17,13 @@ import java.util.Map;
 
 public class PackageMetrics {
 
+	/**
+	 * This method calculate NR metric. The NR metric represent system number of
+	 * revision
+	 * 
+	 * @param pSourceContainer
+	 * @return NR metric value
+	 */
 	public int getNumberOfAuthor(SourceContainer pSourceContainer) {
 		List<String> devMails = new ArrayList<>();
 		List<Type> types = new TypeDAO().getClassesByPackage(pSourceContainer);
@@ -42,6 +49,13 @@ public class PackageMetrics {
 		return devMails.size();
 	}
 
+	/**
+	 * This method calculate mean_NCHANGE metric. The mean_NCHANGE metric
+	 * represent mean number of file changes in a package
+	 * 
+	 * @param pSourceContainer
+	 * @return mean_NCHANGE metric
+	 */
 	public float getMeanDimensionOfModifiedFiles(
 			SourceContainer pSourceContainer) {
 		List<Type> modifiedClassForPackage = this
