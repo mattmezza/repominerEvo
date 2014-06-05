@@ -29,7 +29,7 @@ public class SourceContainerDAO {
 	}
 
 	/**
-	 * Returns a single package filled by id
+	 * Returns a single package picked by id
 	 * 
 	 * @param pId
 	 * @return A SourceContainer object

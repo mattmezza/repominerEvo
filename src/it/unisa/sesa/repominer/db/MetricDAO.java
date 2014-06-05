@@ -8,6 +8,11 @@ import it.unisa.sesa.repominer.db.entities.Metric;
 
 public class MetricDAO {
 
+	/**
+	 * This method saves in database a metric passed as parameter
+	 * 
+	 * @param pMetric
+	 */
 	public Integer saveMetric(Metric pMetric) {
 		Connection connection = ConnectionPool.getInstance().getConnection();
 		Integer id = null;

@@ -25,9 +25,9 @@ public class IssueDAO {
 	}
 	
 	/**
-	 * Returns a single issue filled by id
+	 * Returns a single issue picked by its id, picked as parameter
 	 * @param pId
-	 * @return A Issue object
+	 * @return An Issue object
 	 */
 	public Issue getIssueById(Integer pId) {
 		Connection connection = ConnectionPool.getInstance().getConnection();
