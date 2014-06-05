@@ -102,6 +102,56 @@ public class PackageMetrics {
 		return counter / occurrenceTable.size();
 	}
 
+	public float getMeanNumberOfChangeForRefactoring(
+			SourceContainer pSourceContainer) {
+		List<Type> modifiedClassForPackage = this
+				.getModifiedClassForPackage(pSourceContainer);
+		Map<String, Integer> occurrenceTable = new HashMap<>();
+
+		String keyWord = "refactoring";
+
+		// We take all changes for a project
+		Project project = new ProjectDAO().getProject(pSourceContainer
+				.getProjectId());
+		List<Change> changes = new ChangeDAO().getChangesOfProject(project);
+		for (Type modifiedFile : modifiedClassForPackage) {
+			// Initialization of occurrenceTable with 0 occurrences
+			occurrenceTable.put(modifiedFile.getSrcFileLocation(), 0);
+			for (Change change : changes) {
+
+				Boolean isRefactoring = change.getMessage().contains(keyWord);
+				if (!isRefactoring) {
+					continue;
+				}
+
+				List<ChangeForCommit> changesForCommit = new ChangeForCommitDAO()
+						.getChangeForCommitOfChange(change);
+
+				for (ChangeForCommit changeForCommit : changesForCommit) {
+					if (changeForCommit.getModifiedFile().equals(
+							modifiedFile.getSrcFileLocation())) {
+						int aux = occurrenceTable.get(modifiedFile
+								.getSrcFileLocation());
+						occurrenceTable.put(modifiedFile.getSrcFileLocation(),
+								aux + 1);
+					}
+				}
+			}
+		}
+
+		if (occurrenceTable.size() == 0) {
+			return 0;
+		}
+
+		float counter = 0f;
+		// Iterating over occurrenceTable values
+		for (Integer occurenceValue : occurrenceTable.values()) {
+			counter += occurenceValue;
+		}
+
+		return counter / occurrenceTable.size();
+	}
+
 	public Map<String, Double> getInsertionsAndDelitionsInfo(
 			SourceContainer pSourceContainer) {
 		Map<String, Double> info = new HashMap<>();

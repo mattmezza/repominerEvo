@@ -1,5 +1,7 @@
 package it.unisa.sesa.repominer.metrics;
 
+import java.util.Map;
+
 import it.unisa.sesa.repominer.db.entities.Project;
 import it.unisa.sesa.repominer.db.entities.SourceContainer;
 
@@ -24,5 +26,9 @@ public class HistoryMetricsCalculator {
 		System.out.println("Metrica changeSetSize: " + changeSetSize);
 		float mean_NCHANGE = packageMetrics.getMeanNumberOfChange(pSourceContainer);
 		System.out.println("Metrica mean_NCHANGE " + mean_NCHANGE);
+		float mean_NREF = packageMetrics.getMeanNumberOfChangeForRefactoring(pSourceContainer);
+		System.out.println("Metrica mean_NREF " + mean_NREF);
+		Map<String,Double> info = packageMetrics.getInsertionsAndDelitionsInfo(pSourceContainer);
+		System.out.println(info);
 	}
 }
