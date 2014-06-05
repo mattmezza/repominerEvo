@@ -12,6 +12,13 @@ import net.sf.jeasyorm.RuntimeSQLException;
 
 public class ProjectMetricDAO {
 
+	/**
+	 * This method returns a list of project metrics for a project passed as
+	 * parameter
+	 * 
+	 * @param pProject
+	 * @return A list of ProjectMetric objects
+	 */
 	public List<ProjectMetric> getMetricsOfProject(Project pProject) {
 		Connection connection = ConnectionPool.getInstance().getConnection();
 		EntityManager em = EntityManager.getInstance(connection);
@@ -34,6 +41,14 @@ public class ProjectMetricDAO {
 		return projectMetrics;
 	}
 
+	/**
+	 * This method returns a single project metric picked by metric and project
+	 * id
+	 * 
+	 * @param pMetric
+	 * @param pProject
+	 * @return
+	 */
 	public ProjectMetric getMetric(Metric pMetric, Project pProject) {
 		Connection connection = ConnectionPool.getInstance().getConnection();
 		EntityManager em = EntityManager.getInstance(connection);
@@ -47,6 +62,11 @@ public class ProjectMetricDAO {
 		return projectMetric;
 	}
 
+	/**
+	 * This method save a project metric into database
+	 * 
+	 * @param pProjectMetric
+	 */
 	public void saveMetric(ProjectMetric pProjectMetric) {
 		Connection connection = ConnectionPool.getInstance().getConnection();
 		EntityManager em = EntityManager.getInstance(connection);

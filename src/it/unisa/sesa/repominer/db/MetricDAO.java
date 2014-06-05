@@ -8,15 +8,20 @@ import it.unisa.sesa.repominer.db.entities.Metric;
 
 public class MetricDAO {
 
+	/**
+	 * This method saves in database a metric passed as parameter
+	 * 
+	 * @param pMetric
+	 */
 	public void saveMetric(Metric pMetric) {
 		Connection connection = ConnectionPool.getInstance().getConnection();
 		EntityManager em = EntityManager.getInstance(connection);
 		try {
 			em.insert(pMetric);
-		} catch(RuntimeSQLException e) {
+		} catch (RuntimeSQLException e) {
 			e.printStackTrace();
 		}
 		ConnectionPool.getInstance().releaseConnection(connection);
 	}
-	
+
 }

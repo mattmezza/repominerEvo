@@ -10,10 +10,17 @@ import net.sf.jeasyorm.EntityManager;
 
 public class MethodDAO {
 
+	/**
+	 * This method return the list of methods for a class
+	 * 
+	 * @param pType
+	 * @return A list of Method objects
+	 */
 	public List<Method> getMethodsOfType(Type pType) {
 		Connection connection = ConnectionPool.getInstance().getConnection();
 		EntityManager em = EntityManager.getInstance(connection);
-		List<Method> methods = em.find(Method.class, "where belonging_type=?", pType.getId());
+		List<Method> methods = em.find(Method.class, "where belonging_type=?",
+				pType.getId());
 		ConnectionPool.getInstance().releaseConnection(connection);
 		return methods;
 	}

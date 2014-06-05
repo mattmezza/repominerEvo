@@ -12,7 +12,14 @@ import net.sf.jeasyorm.RuntimeSQLException;
 
 public class PackageMetricDAO {
 
-	public List<PackageMetric> getMetricsOfPackage(SourceContainer pSourceContainer) {
+	/**
+	 * This method returns a list of package metrics for package as parameter
+	 * 
+	 * @param pSourceContainer
+	 * @return A list of PackageMetric objects
+	 */
+	public List<PackageMetric> getMetricsOfPackage(
+			SourceContainer pSourceContainer) {
 		Connection connection = ConnectionPool.getInstance().getConnection();
 		EntityManager em = EntityManager.getInstance(connection);
 		List<PackageMetric> packageMetrics = em.find(PackageMetric.class,
@@ -34,12 +41,21 @@ public class PackageMetricDAO {
 		return packageMetrics;
 	}
 
-	public PackageMetric getMetric(Metric pMetric, SourceContainer pSourceContainer) {
+	/**
+	 * This method return a single package metric picked by metric and package
+	 * id
+	 * 
+	 * @param pMetric
+	 * @param pSourceContainer
+	 * @return A PackageMetric object
+	 */
+	public PackageMetric getMetric(Metric pMetric,
+			SourceContainer pSourceContainer) {
 		Connection connection = ConnectionPool.getInstance().getConnection();
 		EntityManager em = EntityManager.getInstance(connection);
 		PackageMetric projectMetric = em.findUnique(PackageMetric.class,
-				"where source_container=? and metric=?", pSourceContainer.getId(),
-				pMetric.getId());
+				"where source_container=? and metric=?",
+				pSourceContainer.getId(), pMetric.getId());
 		projectMetric.setDescription(pMetric.getDescription());
 		projectMetric.setName(pMetric.getName());
 		projectMetric.setId(pMetric.getId());
@@ -57,5 +73,5 @@ public class PackageMetricDAO {
 		}
 		ConnectionPool.getInstance().releaseConnection(connection);
 	}
-	
+
 }

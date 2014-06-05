@@ -7,6 +7,11 @@ import it.unisa.sesa.repominer.db.entities.Import;
 
 public class ImportDAO {
 
+	/**
+	 * This method returns a name of package picked by its id, passed as parameter
+	 * @param pId
+	 * @return An Import object
+	 */
 	public Import getImportById(Integer pId) {
 		Connection connection = ConnectionPool.getInstance().getConnection();
 		EntityManager em = EntityManager.getInstance(connection);

@@ -26,7 +26,7 @@ public class TypeDAO {
 	}
 
 	/**
-	 * Returns a single class filled by id
+	 * Returns a single class picked by id
 	 * 
 	 * @param pId
 	 * @return A Type object
