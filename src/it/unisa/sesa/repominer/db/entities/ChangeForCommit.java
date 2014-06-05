@@ -12,14 +12,19 @@ public class ChangeForCommit {
 	private Integer changeHashId;
 	@Column(name = "modified_file")
 	String modifiedFile;
+	Integer insertions;
+	Integer deletions;
 
 	public ChangeForCommit() {
 	}
 
-	public ChangeForCommit(Integer id, Integer changeHash, String modifiedFile) {
+	public ChangeForCommit(Integer id, Integer changeHashId,
+			String modifiedFile, Integer insertions, Integer deletions) {
 		this.id = id;
-		this.changeHashId = changeHash;
+		this.changeHashId = changeHashId;
 		this.modifiedFile = modifiedFile;
+		this.insertions = insertions;
+		this.deletions = deletions;
 	}
 
 	public Integer getId() {
@@ -30,11 +35,11 @@ public class ChangeForCommit {
 		this.id = id;
 	}
 
-	public Integer getChangeHash() {
+	public Integer getChangeHashId() {
 		return changeHashId;
 	}
 
-	public void setChangeHash(Integer changeHash) {
+	public void setChangeHashId(Integer changeHash) {
 		this.changeHashId = changeHash;
 	}
 
@@ -46,10 +51,27 @@ public class ChangeForCommit {
 		this.modifiedFile = modifiedFile;
 	}
 
+	public Integer getInsertions() {
+		return insertions;
+	}
+
+	public void setInsertions(Integer insertions) {
+		this.insertions = insertions;
+	}
+
+	public Integer getDeletions() {
+		return deletions;
+	}
+
+	public void setDeletions(Integer deletions) {
+		this.deletions = deletions;
+	}
+
 	@Override
 	public String toString() {
-		return "Change_for_commit [id=" + id + ", changeHashId=" + changeHashId
-				+ ", modifiedFile=" + modifiedFile + "]";
+		return "ChangeForCommit [id=" + id + ", changeHashId=" + changeHashId
+				+ ", modifiedFile=" + modifiedFile + ", insertions="
+				+ insertions + ", deletions=" + deletions + "]";
 	}
 
 	@Override
