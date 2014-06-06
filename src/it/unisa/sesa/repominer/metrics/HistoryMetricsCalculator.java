@@ -86,6 +86,19 @@ public class HistoryMetricsCalculator {
 		packageMetricDAO.saveMetric(meanNRefMetric);
 		System.out.println("Metric mean_NREF: " + mean_NREF_value
 				+ " correctly saved into db");
+		
+		float mean_NFIX_value = packageMetrics
+				.getMeanNumberOfChangeForBugFix(pSourceContainer);
+
+		PackageMetric meanNFixMetric = new PackageMetric();
+		meanNFixMetric
+				.setDescription("Mean number of time in which files of a package have been fixed for a bug");
+		meanNFixMetric.setName("mean_NFIX");
+		meanNFixMetric.setPackageId(pSourceContainer.getId());
+		meanNFixMetric.setValue(new Double(mean_NFIX_value));
+		packageMetricDAO.saveMetric(meanNFixMetric);
+		System.out.println("Metric mean_NFIX: " + mean_NFIX_value
+				+ " correctly saved into db");
 
 		Double[] info = packageMetrics
 				.getInsertionsAndDelitionsInfo(pSourceContainer);

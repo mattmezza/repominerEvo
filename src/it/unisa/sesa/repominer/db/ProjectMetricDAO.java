@@ -81,11 +81,13 @@ public class ProjectMetricDAO {
 				newMetric.setName(pProjectMetric.getName());
 				Integer metricId = new MetricDAO().saveMetric(newMetric);
 				pProjectMetric.setMetricId(metricId);
+				em.insert(pProjectMetric);
 			} else {
 				pProjectMetric.setMetricId(metric.getId());
+				em.delete(pProjectMetric);
+				em.insert(pProjectMetric);
+
 			}
-			em.delete(pProjectMetric);
-			em.insert(pProjectMetric);
 			connection.commit();
 		} catch (RuntimeSQLException e) {
 			e.printStackTrace();

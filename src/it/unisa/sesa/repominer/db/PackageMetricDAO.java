@@ -64,6 +64,11 @@ public class PackageMetricDAO {
 		return projectMetric;
 	}
 
+	/**
+	 * This method saves or update a package metric into database
+	 * 
+	 * @param pPackageMetric
+	 */
 	public void saveMetric(PackageMetric pPackageMetric) {
 		Connection connection = ConnectionPool.getInstance().getConnection();
 		EntityManager em = EntityManager.getInstance(connection);
@@ -77,11 +82,12 @@ public class PackageMetricDAO {
 				newMetric.setName(pPackageMetric.getName());
 				Integer metricId = new MetricDAO().saveMetric(newMetric);
 				pPackageMetric.setMetricId(metricId);
+				em.insert(pPackageMetric);
 			} else {
 				pPackageMetric.setMetricId(metric.getId());
+				em.delete(pPackageMetric);
+				em.insert(pPackageMetric);
 			}
-			em.delete(pPackageMetric);
-			em.insert(pPackageMetric);
 			connection.commit();
 		} catch (RuntimeSQLException e) {
 			e.printStackTrace();
@@ -100,5 +106,5 @@ public class PackageMetricDAO {
 		}
 		ConnectionPool.getInstance().releaseConnection(connection);
 	}
-	
+
 }
