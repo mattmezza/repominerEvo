@@ -1,9 +1,34 @@
 USE repominer;
 
 -- Crea il progetto
+DELETE FROM `catched_exceptions` WHERE id > 0;
 DELETE FROM `changes_for_commit` WHERE id > 0;
 DELETE FROM `changes` WHERE id > 0;
+DELETE FROM `class_invocations` WHERE id > 0;
 DELETE FROM `types` WHERE id > 0;
+DELETE FROM `comments`  WHERE id > 0;
+DELETE FROM `extends` WHERE id > 0;
+DELETE FROM `field_comments` WHERE id > 0;
+DELETE FROM `fields` WHERE id > 0;
 DELETE FROM `source_containers` WHERE id > 0;
 DELETE FROM `import` WHERE id > 0;
+DELETE FROM `imports` WHERE id > 0;
+DELETE FROM `issue_attachments` WHERE id > 0;
+DELETE FROM `issues` WHERE id > 0;
+DELETE FROM `issue_comments` WHERE id > 0;
+DELETE FROM `local_variables` WHERE id > 0;
+DELETE FROM `method_comments` WHERE id > 0;
+DELETE FROM `method_invocations` WHERE id > 0;
 DELETE FROM `projects` WHERE id > 0;
+DELETE FROM `methods` WHERE id > 0;
+DELETE FROM `methods_change_in_commit` WHERE id > 0;
+DELETE FROM `metrics` WHERE id > 0;
+DELETE FROM `metrics_method` WHERE id > 0;
+DELETE FROM `package_metrics` WHERE id > 0;
+DELETE FROM `parameters` WHERE id > 0;
+DELETE FROM `project_metrics` WHERE id > 0;
+DELETE FROM `reviews` WHERE id > 0;
+DELETE FROM `throwed_exceptions` WHERE id > 0;
+DELETE FROM `type_invocations` WHERE id > 0;
+DELETE FROM `types_metrics` WHERE id > 0;
+DELETE FROM `used_fields` WHERE id > 0;
