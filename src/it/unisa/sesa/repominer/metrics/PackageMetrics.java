@@ -50,11 +50,11 @@ public class PackageMetrics {
 	}
 
 	/**
-	 * This method calculate mean_NCHANGE metric. The mean_NCHANGE metric
-	 * represent mean number of file changes in a package
+	 * This method calculate ChangeSetSize metric. The ChangeSetSize metric
+	 * represent mean dimension of modified files in a package
 	 * 
 	 * @param pSourceContainer
-	 * @return mean_NCHANGE metric
+	 * @return ChangeSetSize metric value
 	 */
 	public float getMeanDimensionOfModifiedFiles(
 			SourceContainer pSourceContainer) {
@@ -75,6 +75,13 @@ public class PackageMetrics {
 
 	}
 
+	/**
+	 * This method calculate mean_NCHANGE metric. The mean_NCHANGE metric
+	 * represent mean number of file changes in a package
+	 * 
+	 * @param pSourceContainer
+	 * @return mean_NCHANGE metric value
+	 */
 	public float getMeanNumberOfChange(SourceContainer pSourceContainer) {
 
 		List<Type> modifiedClassForPackage = this
@@ -116,13 +123,20 @@ public class PackageMetrics {
 		return counter / occurrenceTable.size();
 	}
 
+	/**
+	 * This method calculate mean_NREF metric. The mean_NREF metric represent
+	 * mean number of file changes in a package caused by refactoring operation
+	 * 
+	 * @param pSourceContainer
+	 * @return mean_NREF metric value
+	 */
 	public float getMeanNumberOfChangeForRefactoring(
 			SourceContainer pSourceContainer) {
 		List<Type> modifiedClassForPackage = this
 				.getModifiedClassForPackage(pSourceContainer);
 		Map<String, Integer> occurrenceTable = new HashMap<>();
 
-		String keyWord = "refactoring";
+		String keyWord = "[^Rr]*refactor.*";
 
 		// We take all changes for a project
 		Project project = new ProjectDAO().getProject(pSourceContainer
@@ -133,7 +147,7 @@ public class PackageMetrics {
 			occurrenceTable.put(modifiedFile.getSrcFileLocation(), 0);
 			for (Change change : changes) {
 
-				Boolean isRefactoring = change.getMessage().contains(keyWord);
+				Boolean isRefactoring = change.getMessage().matches(keyWord);
 				if (!isRefactoring) {
 					continue;
 				}
@@ -166,6 +180,69 @@ public class PackageMetrics {
 		return counter / occurrenceTable.size();
 	}
 
+	/**
+	 * This method calculate mean_NFIX metric. The mean_NFIX metric represent
+	 * mean number of file changes in a package caused by bug fixes
+	 * 
+	 * @param pSourceContainer
+	 * @return mean_NFIX metric value
+	 */
+	public float getMeanNumberOfChangeForBugFix(SourceContainer pSourceContainer) {
+		List<Type> modifiedClassForPackage = this
+				.getModifiedClassForPackage(pSourceContainer);
+		Map<String, Integer> occurrenceTable = new HashMap<>();
+
+		String keyWord = "[^bB]*bug(s?)([^a-zA-Z0-9]?)fix.*";
+
+		// We take all changes for a project
+		Project project = new ProjectDAO().getProject(pSourceContainer
+				.getProjectId());
+		List<Change> changes = new ChangeDAO().getChangesOfProject(project);
+		for (Type modifiedFile : modifiedClassForPackage) {
+			// Initialization of occurrenceTable with 0 occurrences
+			occurrenceTable.put(modifiedFile.getSrcFileLocation(), 0);
+			for (Change change : changes) {
+
+				Boolean isBug = change.getMessage().matches(keyWord);
+				if (!isBug) {
+					continue;
+				}
+
+				List<ChangeForCommit> changesForCommit = new ChangeForCommitDAO()
+						.getChangeForCommitOfChange(change);
+
+				for (ChangeForCommit changeForCommit : changesForCommit) {
+					if (changeForCommit.getModifiedFile().equals(
+							modifiedFile.getSrcFileLocation())) {
+						int aux = occurrenceTable.get(modifiedFile
+								.getSrcFileLocation());
+						occurrenceTable.put(modifiedFile.getSrcFileLocation(),
+								aux + 1);
+					}
+				}
+			}
+		}
+
+		if (occurrenceTable.size() == 0) {
+			return 0;
+		}
+
+		float counter = 0f;
+		// Iterating over occurrenceTable values
+		for (Integer occurenceValue : occurrenceTable.values()) {
+			counter += occurenceValue;
+		}
+
+		return counter / occurrenceTable.size();
+	}
+
+	/**
+	 * This method calculate the first value of Lines metric, namely sum of
+	 * insertion or deletion
+	 * 
+	 * @param pSourceContainer
+	 * @return First value for Lines metric
+	 */
 	public Integer getTotalInsertionsOrDeletionsNumber(
 			SourceContainer pSourceContainer) {
 		int sum = 0;
@@ -196,6 +273,13 @@ public class PackageMetrics {
 		return sum;
 	}
 
+	/**
+	 * This method calculate the second value of Lines metric, namely max number
+	 * of insertion or deletion
+	 * 
+	 * @param pSourceContainer
+	 * @return Second value for Lines metric
+	 */
 	public Integer getMaxInsertionsOrDeletionsNumber(
 			SourceContainer pSourceContainer) {
 		int max = 0;
@@ -227,6 +311,13 @@ public class PackageMetrics {
 		return max;
 	}
 
+	/**
+	 * This method calculate the third value of Lines metric, namely mean number
+	 * of insertion or deletion
+	 * 
+	 * @param pSourceContainer
+	 * @return Third value for Lines metric
+	 */
 	public Double getMeanInsertionsOrDeletionsNumber(
 			SourceContainer pSourceContainer) {
 		double sum = 0;
@@ -259,6 +350,13 @@ public class PackageMetrics {
 		return new Double(sum / howMany);
 	}
 
+	/**
+	 * This method calculate the Lines metric. The Lines metric represent the
+	 * total, mean an maximum number of insertion or deletion
+	 * 
+	 * @param pSourceContainer
+	 * @return Lines metric value
+	 */
 	public Double[] getInsertionsAndDelitionsInfo(
 			SourceContainer pSourceContainer) {
 		Double[] info = new Double[3];
