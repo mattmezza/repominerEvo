@@ -396,6 +396,76 @@ public class PackageMetrics {
 		info[2] = new Double(max);
 		return info;
 	}
+	
+	/**
+	 * *********************************************************************************************************
+	 * @param pSourceContainer
+	 * @return
+	 */
+	public float getBCCMetric(SourceContainer pSourceContainer){
+		List<Type> modifiedClassForPackage = this
+				.getModifiedClassForPackage(pSourceContainer);
+		Map<String, Integer> occurrenceTable = new HashMap<>();
+
+		String keyWord = "[^bB]*bug(s?)([^a-zA-Z0-9]?)fix.*";
+
+		// We take all changes for a project
+		Project project = new ProjectDAO().getProject(pSourceContainer
+				.getProjectId());
+		// We use getChangesByDate method
+		List<Change> changes = new ChangeDAO().getChangesByDate(project);
+		
+		float allFI = 0;
+		for (Type modifiedFile : modifiedClassForPackage) {
+			// Initialization of occurrenceTable with 0 occurrences
+			occurrenceTable.put(modifiedFile.getSrcFileLocation(), 0);
+			for (Change change : changes) {
+
+				Boolean isNotFI = change.getMessage().matches(keyWord);
+				if (isNotFI) {
+					//Reversed condition - only FI modification
+					continue;
+				}
+
+				List<ChangeForCommit> changesForCommit = new ChangeForCommitDAO()
+						.getChangeForCommitOfChange(change);
+
+				for (ChangeForCommit changeForCommit : changesForCommit) {
+					if (changeForCommit.getModifiedFile().equals(
+							modifiedFile.getSrcFileLocation())) {
+						int aux = occurrenceTable.get(modifiedFile
+								.getSrcFileLocation());
+						occurrenceTable.put(modifiedFile.getSrcFileLocation(),
+								aux + 1);
+						// Increment allFI (global changes counter)
+						allFI +=1;
+					}
+				}
+			}
+		}
+
+		if (occurrenceTable.size() == 0) {
+			return 0;
+		}
+
+		float[] probabilty = new float[occurrenceTable.size()];
+		
+		int index = 0;
+		// Iterating over occurrenceTable values
+		for (Integer occurenceValue : occurrenceTable.values()) {
+			probabilty[index]=occurenceValue/allFI;
+			index++;
+		}
+		
+		float BCCMetric = 0;
+		for (int i = 0; i < probabilty.length; i++) {
+			BCCMetric+= probabilty[i]*(Math.log(probabilty[i])/Math.log(2));
+		}
+		BCCMetric=BCCMetric*-1;
+		
+		return BCCMetric;	
+		
+	}
 
 	/**
 	 * This method get a list of class that have been changed in a package

@@ -135,5 +135,10 @@ public class HistoryMetricsCalculator {
 		packageMetricDAO.saveMetric(maxInsertionsMetric);
 		System.out.println("Metric Max_LINES: " + max
 				+ " correctly saved into db");
+		
+		/* save in db have to implemented */
+		float BCCMetric = packageMetrics.getBCCMetric(pSourceContainer);
+		System.out.println("BCC Metric "+ BCCMetric);
+		
 	}
 }
