@@ -44,6 +44,10 @@ public class PreferencePage extends FieldEditorPreferencePage implements
 		addField(new StringFieldEditor(PreferenceConstants.P_DBPASS,
 				"What is the &password of the dbms user?",
 				getFieldEditorParent()));
+		addField(new StringFieldEditor(PreferenceConstants.S_BCC,
+				"Start date for BCC metric", getFieldEditorParent()));
+		addField(new StringFieldEditor(PreferenceConstants.E_BCC,
+				"End date for BCC metric", getFieldEditorParent()));
 	}
 
 	/*
