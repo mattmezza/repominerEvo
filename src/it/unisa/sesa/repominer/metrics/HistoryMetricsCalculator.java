@@ -86,7 +86,7 @@ public class HistoryMetricsCalculator {
 		packageMetricDAO.saveMetric(meanNRefMetric);
 		System.out.println("Metric mean_NREF: " + mean_NREF_value
 				+ " correctly saved into db");
-		
+
 		float mean_NFIX_value = packageMetrics
 				.getMeanNumberOfChangeForBugFix(pSourceContainer);
 
@@ -135,10 +135,14 @@ public class HistoryMetricsCalculator {
 		packageMetricDAO.saveMetric(maxInsertionsMetric);
 		System.out.println("Metric Max_LINES: " + max
 				+ " correctly saved into db");
-		
-		/* save in db have to implemented */
-		float BCCMetric = packageMetrics.getBCCMetric(pSourceContainer);
-		System.out.println("BCC Metric "+ BCCMetric);
-		
+
+		float bcc = packageMetrics.getBCCMetric(pSourceContainer);
+		PackageMetric bccMetric = new PackageMetric();
+		bccMetric.setDescription("System entropy calculated by the Basic Code Change Model");
+		bccMetric.setName("BCC_Model");
+		bccMetric.setPackageId(pSourceContainer.getId());
+		bccMetric.setValue(new Double(bcc));
+		packageMetricDAO.saveMetric(bccMetric);
+		System.out.println("Metric Basic Code Change Model: " + bcc + " correctly saved into db");
 	}
 }

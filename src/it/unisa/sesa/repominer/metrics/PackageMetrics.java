@@ -414,6 +414,9 @@ public class PackageMetrics {
 				.getProjectId());
 		// We use getChangesByDate method
 		List<Change> changes = new ChangeDAO().getChangesByDate(project);
+		if (changes.isEmpty()){
+			return 0;
+		}
 		
 		float allFI = 0;
 		for (Type modifiedFile : modifiedClassForPackage) {
