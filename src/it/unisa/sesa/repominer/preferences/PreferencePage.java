@@ -48,6 +48,13 @@ public class PreferencePage extends FieldEditorPreferencePage implements
 				"Start date for BCC metric", getFieldEditorParent()));
 		addField(new StringFieldEditor(PreferenceConstants.E_BCC,
 				"End date for BCC metric", getFieldEditorParent()));
+		;
+		addField(new StringFieldEditor(PreferenceConstants.PERIOD,
+				"Period lenght", getFieldEditorParent()));
+		addField(new RadioGroupFieldEditor(PreferenceConstants.INTERVAL,
+				"Select your interval", 1, new String[][] {
+						{ "Weaks", "weak" }, { "Months", "month" },
+						{ "Years", "year" } }, getFieldEditorParent()));
 	}
 
 	/*

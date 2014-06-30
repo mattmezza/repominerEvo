@@ -13,6 +13,9 @@ public class PreferenceConstants {
 	
 	public static final String S_BCC = "bccStart";
 	public static final String E_BCC = "bccEnd";
+	
+	public static final String PERIOD = "period";
+	public static final String INTERVAL = "interval";
 			
 
 }

@@ -27,6 +27,8 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 		
 		store.setDefault(PreferenceConstants.S_BCC, "2000/01/01");
 		store.setDefault(PreferenceConstants.E_BCC, "2020/12/31");
+		store.setDefault(PreferenceConstants.PERIOD, 3);
+		store.setDefault(PreferenceConstants.INTERVAL, null);
 	}
 
 }
