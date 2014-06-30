@@ -14,11 +14,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class PackageMetrics {
 
-	private static final String KEYWORD_BUG_FIXING = "[^bB]*bug(s?)([^a-zA-Z0-9]?)fix.*";
-	private static final String KEYWORD_REFACTORING = "[^Rr]*refactor.*";
+	private static final Pattern PATTERN_BUG_FIXING = Pattern.compile(".*[Bb][Uu][Gg]([sS])?([^a-zA-Z0-9])*[Ff][iI][xX].*", Pattern.DOTALL);
+	private static final Pattern PATTERN_REFACTORING = Pattern.compile(".*[rR][eE][fF][aA][cC][tT][oO][rR].*", Pattern.DOTALL);
 
 	/**
 	 * This method calculate NR metric. The NR metric represent system number of
@@ -28,7 +30,7 @@ public class PackageMetrics {
 	 * @return NR metric value
 	 */
 	public int getNumberOfAuthor(SourceContainer pSourceContainer) {
-		List<String> devMails = new ArrayList<>();
+		List<String> authors = new ArrayList<>();
 		List<Type> types = new TypeDAO().getClassesByPackage(pSourceContainer);
 		Project project = new ProjectDAO().getProject(pSourceContainer
 				.getProjectId());
@@ -40,16 +42,19 @@ public class PackageMetrics {
 				for (Type currType : types) {
 					if (currType.getSrcFileLocation().equals(
 							changeForCommit.getModifiedFile())) {
-						String devMail = change.getDevMail();
-						if (!devMails.contains(devMail)) {
-							devMails.add(devMail);
+						String author = change.getDevMail();
+						if(author == null || author.isEmpty()) {
+							author = change.getDevId();
+						}
+						if (!authors.contains(author)) {
+							authors.add(author);
 						}
 						break;
 					}
 				}
 			}
 		}
-		return devMails.size();
+		return authors.size();
 	}
 
 	/**
@@ -148,8 +153,8 @@ public class PackageMetrics {
 			occurrenceTable.put(modifiedFile.getSrcFileLocation(), 0);
 			for (Change change : changes) {
 
-				Boolean isRefactoring = change.getMessage().matches(
-						KEYWORD_REFACTORING);
+				Matcher matcher = PATTERN_REFACTORING.matcher(change.getMessage());
+				Boolean isRefactoring = matcher.matches();
 				if (!isRefactoring) {
 					continue;
 				}
@@ -203,7 +208,8 @@ public class PackageMetrics {
 			occurrenceTable.put(modifiedFile.getSrcFileLocation(), 0);
 			for (Change change : changes) {
 
-				Boolean isBug = change.getMessage().matches(KEYWORD_BUG_FIXING);
+				Matcher matcher = PATTERN_BUG_FIXING.matcher(change.getMessage());
+				Boolean isBug = matcher.matches();
 				if (!isBug) {
 					continue;
 				}
@@ -423,7 +429,7 @@ public class PackageMetrics {
 		// We use getChangesByDate method
 		List<Change> changes = new ChangeDAO().getChangesByDate(project);
 		if (changes.isEmpty()) {
-			return 0;
+			return 0f;
 		}
 
 		float allFI = 0;
@@ -432,8 +438,11 @@ public class PackageMetrics {
 			occurrenceTable.put(modifiedFile.getSrcFileLocation(), 0);
 			for (Change change : changes) {
 
-				Boolean isNotFI = change.getMessage().matches(
-						KEYWORD_BUG_FIXING);
+				Matcher matcher = PATTERN_BUG_FIXING.matcher(change.getMessage());
+				Boolean isBug = matcher.matches();
+				matcher = PATTERN_REFACTORING.matcher(change.getMessage());
+				Boolean isRef = matcher.matches();
+				boolean isNotFI = isBug || isRef;
 				if (isNotFI) {
 					// Reversed condition - only FI modification
 					continue;
@@ -456,8 +465,8 @@ public class PackageMetrics {
 			}
 		}
 
-		if (occurrenceTable.size() == 0) {
-			return 0;
+		if (occurrenceTable.size() == 0 || allFI == 0) {
+			return 0f;
 		}
 
 		float[] probabilty = new float[occurrenceTable.size()];
