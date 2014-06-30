@@ -19,10 +19,15 @@ import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.eclipse.jface.preference.IPreferenceStore;
 
 public class PackageMetrics {
+
+	private static final Pattern PATTERN_BUG_FIXING = Pattern.compile(".*[Bb][Uu][Gg]([sS])?([^a-zA-Z0-9])*[Ff][iI][xX].*", Pattern.DOTALL);
+	private static final Pattern PATTERN_REFACTORING = Pattern.compile(".*[rR][eE][fF][aA][cC][tT][oO][rR].*", Pattern.DOTALL);
 
 	/**
 	 * This method calculate NR metric. The NR metric represent system number of
@@ -32,7 +37,7 @@ public class PackageMetrics {
 	 * @return NR metric value
 	 */
 	public int getNumberOfAuthor(SourceContainer pSourceContainer) {
-		List<String> devMails = new ArrayList<>();
+		List<String> authors = new ArrayList<>();
 		List<Type> types = new TypeDAO().getClassesByPackage(pSourceContainer);
 		Project project = new ProjectDAO().getProject(pSourceContainer
 				.getProjectId());
@@ -44,16 +49,19 @@ public class PackageMetrics {
 				for (Type currType : types) {
 					if (currType.getSrcFileLocation().equals(
 							changeForCommit.getModifiedFile())) {
-						String devMail = change.getDevMail();
-						if (!devMails.contains(devMail)) {
-							devMails.add(devMail);
+						String author = change.getDevMail();
+						if(author == null || author.isEmpty()) {
+							author = change.getDevId();
+						}
+						if (!authors.contains(author)) {
+							authors.add(author);
 						}
 						break;
 					}
 				}
 			}
 		}
-		return devMails.size();
+		return authors.size();
 	}
 
 	/**
@@ -68,18 +76,18 @@ public class PackageMetrics {
 		List<Type> modifiedClassForPackage = this
 				.getModifiedClassForPackage(pSourceContainer);
 
-		int sumLines = 0;
+		float sumLines = 0;
 
 		// Return 0 if package has not changes
 		if (modifiedClassForPackage.size() == 0) {
-			return 0;
+			return 0f;
 		}
 
 		for (Type type : modifiedClassForPackage) {
 			sumLines += type.getLinesNumber();
 		}
-		return sumLines / modifiedClassForPackage.size();
-
+		float meanLines = sumLines / modifiedClassForPackage.size();
+		return meanLines;
 	}
 
 	/**
@@ -118,7 +126,7 @@ public class PackageMetrics {
 			}
 		}
 		if (occurrenceTable.size() == 0) {
-			return 0;
+			return 0f;
 		}
 
 		float counter = 0f;
@@ -143,8 +151,6 @@ public class PackageMetrics {
 				.getModifiedClassForPackage(pSourceContainer);
 		Map<String, Integer> occurrenceTable = new HashMap<>();
 
-		String keyWord = "[^Rr]*refactor.*";
-
 		// We take all changes for a project
 		Project project = new ProjectDAO().getProject(pSourceContainer
 				.getProjectId());
@@ -154,7 +160,8 @@ public class PackageMetrics {
 			occurrenceTable.put(modifiedFile.getSrcFileLocation(), 0);
 			for (Change change : changes) {
 
-				Boolean isRefactoring = change.getMessage().matches(keyWord);
+				Matcher matcher = PATTERN_REFACTORING.matcher(change.getMessage());
+				Boolean isRefactoring = matcher.matches();
 				if (!isRefactoring) {
 					continue;
 				}
@@ -175,7 +182,7 @@ public class PackageMetrics {
 		}
 
 		if (occurrenceTable.size() == 0) {
-			return 0;
+			return 0f;
 		}
 
 		float counter = 0f;
@@ -199,8 +206,6 @@ public class PackageMetrics {
 				.getModifiedClassForPackage(pSourceContainer);
 		Map<String, Integer> occurrenceTable = new HashMap<>();
 
-		String keyWord = "[^bB]*bug(s?)([^a-zA-Z0-9]?)fix.*";
-
 		// We take all changes for a project
 		Project project = new ProjectDAO().getProject(pSourceContainer
 				.getProjectId());
@@ -210,7 +215,8 @@ public class PackageMetrics {
 			occurrenceTable.put(modifiedFile.getSrcFileLocation(), 0);
 			for (Change change : changes) {
 
-				Boolean isBug = change.getMessage().matches(keyWord);
+				Matcher matcher = PATTERN_BUG_FIXING.matcher(change.getMessage());
+				Boolean isBug = matcher.matches();
 				if (!isBug) {
 					continue;
 				}
@@ -231,7 +237,7 @@ public class PackageMetrics {
 		}
 
 		if (occurrenceTable.size() == 0) {
-			return 0;
+			return 0f;
 		}
 
 		float counter = 0f;
@@ -354,7 +360,11 @@ public class PackageMetrics {
 				}
 			}
 		}
-		return new Double(sum / howMany);
+		if (howMany == 0) {
+			return new Double(0.0);
+		} else {
+			return new Double(sum / howMany);
+		}
 	}
 
 	/**
@@ -367,9 +377,9 @@ public class PackageMetrics {
 	public Double[] getInsertionsAndDelitionsInfo(
 			SourceContainer pSourceContainer) {
 		Double[] info = new Double[3];
-		double sum = 0;
+		double sum = 0.0;
 		int max = 0;
-		int howMany = 0;
+		double howMany = 0.0;
 
 		List<Type> types = new TypeDAO().getClassesByPackage(pSourceContainer);
 
@@ -399,7 +409,11 @@ public class PackageMetrics {
 		}
 
 		info[0] = new Double(sum);
-		info[1] = new Double(sum / howMany);
+		if (howMany == 0) {
+			info[1] = new Double(0.0);
+		} else {
+			info[1] = new Double(sum / howMany);
+		}
 		info[2] = new Double(max);
 		return info;
 	}
@@ -418,8 +432,6 @@ public class PackageMetrics {
 				.getModifiedClassForPackage(pSourceContainer);
 		Map<String, Integer> occurrenceTable = new HashMap<>();
 
-		String keyWord = "[^bB]*bug(s?)([^a-zA-Z0-9]?)fix.*";
-
 		// We take all changes for a project
 		Project project = new ProjectDAO().getProject(pSourceContainer
 				.getProjectId());
@@ -436,7 +448,11 @@ public class PackageMetrics {
 			occurrenceTable.put(modifiedFile.getSrcFileLocation(), 0);
 			for (Change change : changes) {
 
-				Boolean isNotFI = change.getMessage().matches(keyWord);
+				Matcher matcher = PATTERN_BUG_FIXING.matcher(change.getMessage());
+				Boolean isBug = matcher.matches();
+				matcher = PATTERN_REFACTORING.matcher(change.getMessage());
+				Boolean isRef = matcher.matches();
+				boolean isNotFI = isBug || isRef;
 				if (isNotFI) {
 					// Reversed condition - only FI modification
 					continue;
@@ -589,8 +605,8 @@ public class PackageMetrics {
 			}
 		}
 
-		if (occurrenceTable.size() == 0) {
-			return 0;
+		if (occurrenceTable.size() == 0 || allFI == 0) {
+			return 0f;
 		}
 
 		float[] probabilty = new float[occurrenceTable.size()];
@@ -609,6 +625,7 @@ public class PackageMetrics {
 		if (BCCMetric == 0) {
 			return 0;
 		}
+
 		BCCMetric = BCCMetric * -1;
 
 		return BCCMetric;

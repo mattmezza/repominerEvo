@@ -24,17 +24,6 @@ public class ConnectionPool {
 	private List<Connection> pool = new ArrayList<>();
 
 	private ConnectionPool() {
-		IPreferenceStore store = Activator.getDefault().getPreferenceStore();
-		String host = store.getString(PreferenceConstants.P_DBHOST);
-		int port = store.getInt(PreferenceConstants.P_DBPORT);
-		String dbname = store.getString(PreferenceConstants.P_DBNAME);
-		String dburl = "jdbc:mysql://" + host;
-		if (port != 3306) {
-			dburl += ":" + port;
-		}
-		DB_URL = dburl + "/" + dbname;
-		USER = store.getString(PreferenceConstants.P_DBUSER);
-		PASS = store.getString(PreferenceConstants.P_DBPASS);
 		try {
 			Class.forName(JDBC_DRIVER);
 		} catch (ClassNotFoundException e) {
@@ -71,6 +60,17 @@ public class ConnectionPool {
 	}
 
 	private Connection createConnection() {
+		IPreferenceStore store = Activator.getDefault().getPreferenceStore();
+		String host = store.getString(PreferenceConstants.P_DBHOST);
+		int port = store.getInt(PreferenceConstants.P_DBPORT);
+		String dbname = store.getString(PreferenceConstants.P_DBNAME);
+		String dburl = "jdbc:mysql://" + host;
+		if (port != 3306) {
+			dburl += ":" + port;
+		}
+		DB_URL = dburl + "/" + dbname;
+		USER = store.getString(PreferenceConstants.P_DBUSER);
+		PASS = store.getString(PreferenceConstants.P_DBPASS);
 		try {
 			return DriverManager.getConnection(DB_URL, USER, PASS);
 		} catch (SQLException e) {
