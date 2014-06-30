@@ -61,7 +61,7 @@ public class PackageMetrics {
 		List<Type> modifiedClassForPackage = this
 				.getModifiedClassForPackage(pSourceContainer);
 
-		int sumLines = 0;
+		float sumLines = 0;
 
 		// Return 0 if package has not changes
 		if (modifiedClassForPackage.size() == 0) {
