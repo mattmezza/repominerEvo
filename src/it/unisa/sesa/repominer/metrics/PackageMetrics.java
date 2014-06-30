@@ -1,5 +1,7 @@
 package it.unisa.sesa.repominer.metrics;
 
+import it.unisa.sesa.repominer.Activator;
+
 import it.unisa.sesa.repominer.db.ChangeDAO;
 import it.unisa.sesa.repominer.db.ChangeForCommitDAO;
 import it.unisa.sesa.repominer.db.ProjectDAO;
@@ -11,9 +13,14 @@ import it.unisa.sesa.repominer.db.entities.SourceContainer;
 import it.unisa.sesa.repominer.db.entities.Type;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.eclipse.jface.preference.IPreferenceStore;
 
 public class PackageMetrics {
 
@@ -396,13 +403,17 @@ public class PackageMetrics {
 		info[2] = new Double(max);
 		return info;
 	}
-	
+
 	/**
-	 * *********************************************************************************************************
+	 * This method calculate the value of BCC Metric; it calculates this value
+	 * only considering changes occurred in time based period between the start
+	 * and the end date specified in the preference panel
+	 * 
 	 * @param pSourceContainer
-	 * @return
+	 * @return The float value of BCC Metric for time period specified in
+	 *         preference panel
 	 */
-	public float getBCCMetric(SourceContainer pSourceContainer){
+	public float getBCCMetric(SourceContainer pSourceContainer) {
 		List<Type> modifiedClassForPackage = this
 				.getModifiedClassForPackage(pSourceContainer);
 		Map<String, Integer> occurrenceTable = new HashMap<>();
@@ -413,11 +424,12 @@ public class PackageMetrics {
 		Project project = new ProjectDAO().getProject(pSourceContainer
 				.getProjectId());
 		// We use getChangesByDate method
-		List<Change> changes = new ChangeDAO().getChangesByDate(project);
-		if (changes.isEmpty()){
+		List<Change> changes = new ChangeDAO()
+				.getChangesByDateInPreferences(project);
+		if (changes.isEmpty()) {
 			return 0;
 		}
-		
+
 		float allFI = 0;
 		for (Type modifiedFile : modifiedClassForPackage) {
 			// Initialization of occurrenceTable with 0 occurrences
@@ -426,7 +438,7 @@ public class PackageMetrics {
 
 				Boolean isNotFI = change.getMessage().matches(keyWord);
 				if (isNotFI) {
-					//Reversed condition - only FI modification
+					// Reversed condition - only FI modification
 					continue;
 				}
 
@@ -439,9 +451,8 @@ public class PackageMetrics {
 						int aux = occurrenceTable.get(modifiedFile
 								.getSrcFileLocation());
 						occurrenceTable.put(modifiedFile.getSrcFileLocation(),
-								aux + 1);
-						// Increment allFI (global changes counter)
-						allFI +=1;
+								aux+1);
+						allFI += 1;
 					}
 				}
 			}
@@ -452,22 +463,177 @@ public class PackageMetrics {
 		}
 
 		float[] probabilty = new float[occurrenceTable.size()];
-		
+
 		int index = 0;
 		// Iterating over occurrenceTable values
 		for (Integer occurenceValue : occurrenceTable.values()) {
-			probabilty[index]=occurenceValue/allFI;
+			probabilty[index] = occurenceValue / allFI;
 			index++;
 		}
-		
+
 		float BCCMetric = 0;
 		for (int i = 0; i < probabilty.length; i++) {
-			BCCMetric+= probabilty[i]*(Math.log(probabilty[i])/Math.log(2));
+			BCCMetric += probabilty[i] * this.log2(probabilty[i]);
 		}
-		BCCMetric=BCCMetric*-1;
-		
-		return BCCMetric;	
-		
+		BCCMetric = BCCMetric * -1;
+
+		return BCCMetric;
+
+	}
+
+	/**
+	 * This method calculate a set of values of BCC Metric; it calculates this
+	 * values broken the history of changes into equal length periods based on
+	 * calendar time from the start of the project. The length of a single
+	 * interval time is specified in preference panel
+	 * 
+	 * @param pSourceContainer
+	 * @return A list of Value
+	 */
+	public float[] getBCCPeriodBased(SourceContainer pSourceContainer) {
+		Project project = new ProjectDAO().getProject(pSourceContainer
+				.getProjectId());
+		List<Float> listBCC = new ArrayList<>();
+
+		int gregorianInterval = 0;
+
+		IPreferenceStore store = Activator.getDefault().getPreferenceStore();
+		int periodLenght = store.getInt("period");
+		String interval = store.getString("interval");
+
+		if (interval.equals("WEEK")) {
+			gregorianInterval = GregorianCalendar.WEEK_OF_YEAR;
+		} else if (interval.equals("YEAR")) {
+			gregorianInterval = GregorianCalendar.YEAR;
+		} else if (interval.equals("MONTH")) {
+			gregorianInterval = GregorianCalendar.MONTH;
+		}
+
+		Calendar startDate = this.DateToCalendar(new ChangeDAO()
+				.getProjectStartDate(project));
+		Date endDate = new ChangeDAO().getProjectEndDate(project);
+
+		while (startDate.getTime().before(endDate)) {
+			Date auxStart = startDate.getTime();
+			startDate.add(gregorianInterval, periodLenght);
+			Date auxEnd = startDate.getTime();
+			float currentBCC = this.getBCCForPeriod(pSourceContainer, auxStart,
+					auxEnd);
+			listBCC.add(currentBCC);
+		}
+
+		float[] BCCMetrics = new float[listBCC.size()];
+
+		int i = 0;
+		for (Float bcc : listBCC) {
+			BCCMetrics[i] = (bcc != null ? bcc : Float.NaN);
+			i++;
+		}
+		return BCCMetrics;
+	}
+
+	/**
+	 * This method calculate the BCC value for package passed as parameter
+	 * considering only changes occurred between two Date always passed as
+	 * parameters
+	 * 
+	 * @param pSourceContainer
+	 * @param pDate1
+	 * @param pDate2
+	 * @return The float value for BCC Metric of this period
+	 */
+	private float getBCCForPeriod(SourceContainer pSourceContainer,
+			Date pDate1, Date pDate2) {
+
+		List<Type> modifiedClassForPackage = this
+				.getModifiedClassForPackage(pSourceContainer);
+		Map<String, Integer> occurrenceTable = new HashMap<>();
+
+		String keyWord = "[^bB]*bug(s?)([^a-zA-Z0-9]?)fix.*";
+
+		// We take all changes for a project
+		Project project = new ProjectDAO().getProject(pSourceContainer
+				.getProjectId());
+		// We use getChangesByDateInterval getting all changes occurred in
+		// selected period
+		List<Change> changes = new ChangeDAO().getChangesByDateInterval(
+				project, pDate1, pDate2);
+
+		if (changes.isEmpty()) {
+			return 0;
+		}
+
+		float allFI = 0;
+		for (Type modifiedFile : modifiedClassForPackage) {
+			int aux = 0; // counter for occurrence table
+			for (Change change : changes) {
+
+				Boolean isNotFI = change.getMessage().matches(keyWord);
+				if (isNotFI) {
+					// Reversed condition - only FI modification
+					continue;
+				}
+
+				List<ChangeForCommit> changesForCommit = new ChangeForCommitDAO()
+						.getChangeForCommitOfChange(change);
+
+				for (ChangeForCommit changeForCommit : changesForCommit) {
+					if (changeForCommit.getModifiedFile().equals(
+							modifiedFile.getSrcFileLocation())) {
+						aux += 1;
+						occurrenceTable.put(modifiedFile.getSrcFileLocation(),
+								aux);
+						allFI += 1;
+					}
+				}
+			}
+		}
+
+		if (occurrenceTable.size() == 0) {
+			return 0;
+		}
+
+		float[] probabilty = new float[occurrenceTable.size()];
+
+		int index = 0;
+		// Iterating over occurrenceTable values
+		for (Integer occurenceValue : occurrenceTable.values()) {
+			probabilty[index] = occurenceValue / allFI;
+			index++;
+		}
+
+		float BCCMetric = 0;
+		for (int i = 0; i < probabilty.length; i++) {
+			BCCMetric += probabilty[i] * this.log2(probabilty[i]);
+		}
+		if (BCCMetric == 0) {
+			return 0;
+		}
+		BCCMetric = BCCMetric * -1;
+
+		return BCCMetric;
+	}
+
+	/**
+	 * This function calculate the base-2 logarithm of a float number
+	 * 
+	 * @param pValue
+	 * @return Base-2 logarithm value
+	 */
+	private float log2(float pValue) {
+		return (float) (Math.log(pValue) / Math.log(2));
+	}
+
+	/**
+	 * This method convert an instance of Date into an instance of Calendar
+	 * 
+	 * @param pDate
+	 * @return A Calendar object
+	 */
+	private Calendar DateToCalendar(Date pDate) {
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTime(pDate);
+		return calendar;
 	}
 
 	/**

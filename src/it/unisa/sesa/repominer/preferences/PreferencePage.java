@@ -53,8 +53,8 @@ public class PreferencePage extends FieldEditorPreferencePage implements
 				"Period lenght", getFieldEditorParent()));
 		addField(new RadioGroupFieldEditor(PreferenceConstants.INTERVAL,
 				"Select your interval", 1, new String[][] {
-						{ "Weaks", "weak" }, { "Months", "month" },
-						{ "Years", "year" } }, getFieldEditorParent()));
+						{ "Weeks", "WEEK" }, { "Months", "MONTH" },
+						{ "Years", "YEAR" } }, getFieldEditorParent()));
 	}
 
 	/*

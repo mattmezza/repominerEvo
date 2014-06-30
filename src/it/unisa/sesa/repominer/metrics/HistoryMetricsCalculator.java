@@ -144,5 +144,10 @@ public class HistoryMetricsCalculator {
 		bccMetric.setValue(new Double(bcc));
 		packageMetricDAO.saveMetric(bccMetric);
 		System.out.println("Metric Basic Code Change Model: " + bcc + " correctly saved into db");
+		
+		float[] bbcPeriods = packageMetrics.getBCCPeriodBased(pSourceContainer);
+		for (int i = 0; i < bbcPeriods.length; i++) {
+			System.out.println("BCC Metric value in period no. " + (i+1) + " is " + bbcPeriods[i]);
+		}
 	}
 }

@@ -53,7 +53,7 @@ public class ChangeDAO {
 	 * @param pProject
 	 * @return A list of Change objects
 	 */
-	public List<Change> getChangesByDate(Project pProject) {
+	public List<Change> getChangesByDateInPreferences(Project pProject) {
 		IPreferenceStore store = Activator.getDefault().getPreferenceStore();
 		String startDate = store.getString("bccStart");
 		String endDate = store.getString("bccEnd");
