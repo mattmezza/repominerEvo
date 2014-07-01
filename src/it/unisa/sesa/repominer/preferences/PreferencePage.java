@@ -61,6 +61,8 @@ public class PreferencePage extends FieldEditorPreferencePage implements
 						{ "Modification limit based period", "modification" },
 						{ "Burst based period", "burst" } },
 				getFieldEditorParent()));
+		addField(new IntegerFieldEditor(PreferenceConstants.ECC_MODIFICATION_LIMIT,
+				"Modification limit (used when Modification limit based period is selected)", getFieldEditorParent()));
 	}
 
 	/*

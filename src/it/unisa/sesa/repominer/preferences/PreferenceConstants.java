@@ -17,6 +17,7 @@ public class PreferenceConstants {
 	public static final String PERIOD = "period";
 	public static final String INTERVAL = "interval";
 	public static final String ECC_MODALITY = "eccModality";
+	public static final String ECC_MODIFICATION_LIMIT = "eccModificationLimit";
 			
 
 }
