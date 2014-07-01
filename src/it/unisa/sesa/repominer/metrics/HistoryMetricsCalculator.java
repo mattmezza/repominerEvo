@@ -162,17 +162,17 @@ public class HistoryMetricsCalculator {
 		System.out.println("Metric Max_LINES: " + max
 				+ " correctly saved into db");
 
-		float bcc = packageMetrics.getBCCMetric(pSourceContainer);
+		BCCMetric bcc = packageMetrics.getBCCMetric(pSourceContainer);
 		PackageMetric bccMetric = new PackageMetric();
 		bccMetric
 				.setDescription("System entropy calculated by the Basic Code Change Model");
 		bccMetric.setName("BCC_Model");
 		bccMetric.setPackageId(pSourceContainer.getId());
-		bccMetric.setValue(new Double(bcc));
-		bccMetric.setStart(startDate);
-		bccMetric.setEnd(endDate);
+		bccMetric.setValue(new Double(bcc.getValue()));
+		bccMetric.setStart(bcc.getPeriodStart());
+		bccMetric.setEnd(bcc.getPeriodEnd());
 		packageMetricDAO.saveMetric(bccMetric);
-		System.out.println("Metric Basic Code Change Model: " + bcc
+		System.out.println("Metric Basic Code Change Model: " + bcc.getValue()
 				+ " correctly saved into db");
 
 		List<BCCMetric> bbcPeriods = packageMetrics
@@ -181,8 +181,8 @@ public class HistoryMetricsCalculator {
 		for (BCCMetric singleBCC : bbcPeriods) {
 			PackageMetric bccPeriodsMetric = new PackageMetric();
 			bccPeriodsMetric
-					.setDescription("BCC Metric for a time based period");
-			bccPeriodsMetric.setName("BCC period n. "+index);
+					.setDescription("System entropy calculated by the Basic Code Change Model");
+			bccPeriodsMetric.setName("BCC_Model");
 			bccPeriodsMetric.setPackageId(pSourceContainer.getId());
 			bccPeriodsMetric.setValue(new Double(singleBCC.getValue()));
 			bccPeriodsMetric.setStart(singleBCC.getPeriodStart());

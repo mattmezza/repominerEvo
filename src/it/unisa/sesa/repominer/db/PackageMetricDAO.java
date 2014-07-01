@@ -8,6 +8,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
+import net.sf.jeasyorm.BasicEntityManager;
 import net.sf.jeasyorm.EntityManager;
 import net.sf.jeasyorm.RuntimeSQLException;
 
@@ -85,10 +86,16 @@ public class PackageMetricDAO {
 				em.insert(pPackageMetric);
 			} else {
 				pPackageMetric.setMetricId(metric.getId());
-				em.delete(pPackageMetric);
+				BasicEntityManager bem = (BasicEntityManager) em;
+				bem.execute(
+						"delete from package_metrics where source_container=? and metric=? and start=? and end=?",
+						pPackageMetric.getPackageId(),
+						pPackageMetric.getMetricId(),
+						pPackageMetric.getStart(), pPackageMetric.getEnd());
 				em.insert(pPackageMetric);
 			}
 			connection.commit();
+			connection.setAutoCommit(true);
 		} catch (RuntimeSQLException e) {
 			e.printStackTrace();
 		} catch (SQLException e) {
@@ -97,11 +104,6 @@ public class PackageMetricDAO {
 			} catch (SQLException e1) {
 				e1.printStackTrace();
 			}
-			e.printStackTrace();
-		}
-		try {
-			connection.setAutoCommit(true);
-		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 		ConnectionPool.getInstance().releaseConnection(connection);

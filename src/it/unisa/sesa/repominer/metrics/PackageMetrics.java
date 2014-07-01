@@ -1,7 +1,6 @@
 package it.unisa.sesa.repominer.metrics;
 
 import it.unisa.sesa.repominer.Activator;
-
 import it.unisa.sesa.repominer.db.ChangeDAO;
 import it.unisa.sesa.repominer.db.ChangeForCommitDAO;
 import it.unisa.sesa.repominer.db.ProjectDAO;
@@ -12,6 +11,9 @@ import it.unisa.sesa.repominer.db.entities.Project;
 import it.unisa.sesa.repominer.db.entities.SourceContainer;
 import it.unisa.sesa.repominer.db.entities.Type;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -427,73 +429,84 @@ public class PackageMetrics {
 	 * @return The float value of BCC Metric for time period specified in
 	 *         preference panel
 	 */
-	public float getBCCMetric(SourceContainer pSourceContainer) {
-		List<Type> modifiedClassForPackage = this
-				.getModifiedClassForPackage(pSourceContainer);
-		Map<String, Integer> occurrenceTable = new HashMap<>();
-
-		// We take all changes for a project
-		Project project = new ProjectDAO().getProject(pSourceContainer
-				.getProjectId());
-		// We use getChangesByDate method
-		List<Change> changes = new ChangeDAO()
-				.getChangesByDateInPreferences(project);
-		if (changes.isEmpty()) {
-			return 0;
-		}
-
-		float allFI = 0;
-		for (Type modifiedFile : modifiedClassForPackage) {
-			// Initialization of occurrenceTable with 0 occurrences
-			occurrenceTable.put(modifiedFile.getSrcFileLocation(), 0);
-			for (Change change : changes) {
-
-				Matcher matcher = PATTERN_BUG_FIXING.matcher(change.getMessage());
-				Boolean isBug = matcher.matches();
-				matcher = PATTERN_REFACTORING.matcher(change.getMessage());
-				Boolean isRef = matcher.matches();
-				boolean isNotFI = isBug || isRef;
-				if (isNotFI) {
-					// Reversed condition - only FI modification
-					continue;
-				}
-
-				List<ChangeForCommit> changesForCommit = new ChangeForCommitDAO()
-						.getChangeForCommitOfChange(change);
-
-				for (ChangeForCommit changeForCommit : changesForCommit) {
-					if (changeForCommit.getModifiedFile().equals(
-							modifiedFile.getSrcFileLocation())) {
-						int aux = occurrenceTable.get(modifiedFile
-								.getSrcFileLocation());
-						occurrenceTable.put(modifiedFile.getSrcFileLocation(),
-								aux+1);
-						allFI += 1;
-					}
-				}
-			}
-		}
-
-		if (occurrenceTable.size() == 0) {
-			return 0;
-		}
-
-		float[] probabilty = new float[occurrenceTable.size()];
-
-		int index = 0;
-		// Iterating over occurrenceTable values
-		for (Integer occurenceValue : occurrenceTable.values()) {
-			probabilty[index] = occurenceValue / allFI;
-			index++;
-		}
-
-		float BCCMetric = 0;
-		for (int i = 0; i < probabilty.length; i++) {
-			BCCMetric += probabilty[i] * this.log2(probabilty[i]);
-		}
-		BCCMetric = BCCMetric * -1;
-
-		return BCCMetric;
+	public BCCMetric getBCCMetric(SourceContainer pSourceContainer) {
+		IPreferenceStore store = Activator.getDefault().getPreferenceStore();
+		Date startDate = this.StringToDate(store.getString("bccStart"));
+		Date endDate = this.StringToDate(store.getString("bccEnd"));
+		
+		float bccValue = this.getBCCForPeriod(pSourceContainer, startDate, endDate);
+		BCCMetric bccMetric = new BCCMetric();
+		bccMetric.setValue(bccValue);
+		bccMetric.setPeriodStart(startDate);
+		bccMetric.setPeriodEnd(endDate);
+		return bccMetric;
+		
+//		List<Type> modifiedClassForPackage = this
+//				.getModifiedClassForPackage(pSourceContainer);
+//		Map<String, Integer> occurrenceTable = new HashMap<>();
+//
+//		// We take all changes for a project
+//		Project project = new ProjectDAO().getProject(pSourceContainer
+//				.getProjectId());
+//		// We use getChangesByDate method
+//		List<Change> changes = new ChangeDAO()
+//				.getChangesByDateInPreferences(project);
+//		if (changes.isEmpty()) {
+//			return 0;
+//		}
+//
+//		float allFI = 0;
+//		for (Type modifiedFile : modifiedClassForPackage) {
+//			// Initialization of occurrenceTable with 0 occurrences
+//			occurrenceTable.put(modifiedFile.getSrcFileLocation(), 0);
+//			for (Change change : changes) {
+//
+//				Matcher matcher = PATTERN_BUG_FIXING.matcher(change.getMessage());
+//				Boolean isBug = matcher.matches();
+//				matcher = PATTERN_REFACTORING.matcher(change.getMessage());
+//				Boolean isRef = matcher.matches();
+//				boolean isNotFI = isBug || isRef;
+//				if (isNotFI) {
+//					// Reversed condition - only FI modification
+//					continue;
+//				}
+//
+//				List<ChangeForCommit> changesForCommit = new ChangeForCommitDAO()
+//						.getChangeForCommitOfChange(change);
+//
+//				for (ChangeForCommit changeForCommit : changesForCommit) {
+//					if (changeForCommit.getModifiedFile().equals(
+//							modifiedFile.getSrcFileLocation())) {
+//						int aux = occurrenceTable.get(modifiedFile
+//								.getSrcFileLocation());
+//						occurrenceTable.put(modifiedFile.getSrcFileLocation(),
+//								aux+1);
+//						allFI += 1;
+//					}
+//				}
+//			}
+//		}
+//
+//		if (occurrenceTable.size() == 0) {
+//			return 0;
+//		}
+//
+//		float[] probabilty = new float[occurrenceTable.size()];
+//
+//		int index = 0;
+//		// Iterating over occurrenceTable values
+//		for (Integer occurenceValue : occurrenceTable.values()) {
+//			probabilty[index] = occurenceValue / allFI;
+//			index++;
+//		}
+//
+//		float BCCMetric = 0;
+//		for (int i = 0; i < probabilty.length; i++) {
+//			BCCMetric += probabilty[i] * this.log2(probabilty[i]);
+//		}
+//		BCCMetric = BCCMetric * -1;
+//
+//		return BCCMetric;
 
 	}
 
@@ -648,6 +661,24 @@ public class PackageMetrics {
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTime(pDate);
 		return calendar;
+	}
+	
+	/**
+	 * This method convert a String into a Date
+	 * @param pString
+	 * @return A Date Object
+	 */
+	private Date StringToDate(String pString){
+		Date convertedDate = null;
+		DateFormat formatter = null;
+		
+		formatter = new SimpleDateFormat("yyyy/MM/dd");
+		try {
+			convertedDate=(Date) formatter.parse(pString);
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		return convertedDate;
 	}
 
 	/**
