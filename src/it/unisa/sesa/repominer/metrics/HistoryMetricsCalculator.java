@@ -7,6 +7,7 @@ import it.unisa.sesa.repominer.db.ChangeDAO;
 import it.unisa.sesa.repominer.db.PackageMetricDAO;
 import it.unisa.sesa.repominer.db.ProjectDAO;
 import it.unisa.sesa.repominer.db.ProjectMetricDAO;
+import it.unisa.sesa.repominer.db.entities.Metric;
 import it.unisa.sesa.repominer.db.entities.PackageMetric;
 import it.unisa.sesa.repominer.db.entities.Project;
 import it.unisa.sesa.repominer.db.entities.ProjectMetric;
@@ -41,11 +42,11 @@ public class HistoryMetricsCalculator {
 	public static void calculateMetrics(SourceContainer pSourceContainer) {
 		PackageMetrics packageMetrics = new PackageMetrics();
 		PackageMetricDAO packageMetricDAO = new PackageMetricDAO();
-		
-		Date startDate = new ChangeDAO().getProjectStartDate(new ProjectDAO().getProject(pSourceContainer
-				.getProjectId()));
-		Date endDate = new ChangeDAO().getProjectEndDate(new ProjectDAO().getProject(pSourceContainer
-				.getProjectId()));
+
+		Date startDate = new ChangeDAO().getProjectStartDate(new ProjectDAO()
+				.getProject(pSourceContainer.getProjectId()));
+		Date endDate = new ChangeDAO().getProjectEndDate(new ProjectDAO()
+				.getProject(pSourceContainer.getProjectId()));
 
 		int NAUTH = packageMetrics.getNumberOfAuthor(pSourceContainer);
 
@@ -162,32 +163,22 @@ public class HistoryMetricsCalculator {
 		System.out.println("Metric Max_LINES: " + max
 				+ " correctly saved into db");
 
-		BCCMetric bcc = packageMetrics.getBCCMetric(pSourceContainer);
-		PackageMetric bccMetric = new PackageMetric();
-		bccMetric
-				.setDescription("System entropy calculated by the Basic Code Change Model");
-		bccMetric.setName("BCC_Model");
-		bccMetric.setPackageId(pSourceContainer.getId());
-		bccMetric.setValue(new Double(bcc.getValue()));
-		bccMetric.setStart(bcc.getPeriodStart());
-		bccMetric.setEnd(bcc.getPeriodEnd());
-		packageMetricDAO.saveMetric(bccMetric);
+		PackageMetric bcc = packageMetrics.getBCCMetric(pSourceContainer);
+		bcc.setDescription(Metric.BCC_DESCRIPTION);
+		bcc.setName(Metric.BCC_NAME);
+		bcc.setPackageId(pSourceContainer.getId());
+		packageMetricDAO.saveMetric(bcc);
 		System.out.println("Metric Basic Code Change Model: " + bcc.getValue()
 				+ " correctly saved into db");
 
-		List<BCCMetric> bbcPeriods = packageMetrics
+		List<PackageMetric> bbcPeriods = packageMetrics
 				.getBCCPeriodBased(pSourceContainer);
 		int index = 1;
-		for (BCCMetric singleBCC : bbcPeriods) {
-			PackageMetric bccPeriodsMetric = new PackageMetric();
-			bccPeriodsMetric
-					.setDescription("System entropy calculated by the Basic Code Change Model");
-			bccPeriodsMetric.setName("BCC_Model");
-			bccPeriodsMetric.setPackageId(pSourceContainer.getId());
-			bccPeriodsMetric.setValue(new Double(singleBCC.getValue()));
-			bccPeriodsMetric.setStart(singleBCC.getPeriodStart());
-			bccPeriodsMetric.setEnd(singleBCC.getPeriodEnd());
-			packageMetricDAO.saveMetric(bccPeriodsMetric);
+		for (PackageMetric singleBCC : bbcPeriods) {
+			singleBCC.setDescription(Metric.BCC_DESCRIPTION);
+			singleBCC.setName(Metric.BCC_NAME);
+			singleBCC.setPackageId(pSourceContainer.getId());
+			packageMetricDAO.saveMetric(singleBCC);
 			System.out
 					.println("Metric Basic Code Change Model calculate for period no. "
 							+ index

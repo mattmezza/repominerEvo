@@ -13,6 +13,9 @@ public class Metric {
 	@Column(name = "description")
 	private String description;
 
+	public static final String BCC_DESCRIPTION="System entropy calculated by the Basic Code Change Model";
+	public static final String BCC_NAME="BCC_Model";
+	
 	public Metric(Integer id, String name, String description) {
 		this.id = id;
 		this.name = name;

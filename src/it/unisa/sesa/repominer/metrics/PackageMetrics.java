@@ -7,6 +7,7 @@ import it.unisa.sesa.repominer.db.ProjectDAO;
 import it.unisa.sesa.repominer.db.TypeDAO;
 import it.unisa.sesa.repominer.db.entities.Change;
 import it.unisa.sesa.repominer.db.entities.ChangeForCommit;
+import it.unisa.sesa.repominer.db.entities.PackageMetric;
 import it.unisa.sesa.repominer.db.entities.Project;
 import it.unisa.sesa.repominer.db.entities.SourceContainer;
 import it.unisa.sesa.repominer.db.entities.Type;
@@ -429,16 +430,16 @@ public class PackageMetrics {
 	 * @return The float value of BCC Metric for time period specified in
 	 *         preference panel
 	 */
-	public BCCMetric getBCCMetric(SourceContainer pSourceContainer) {
+	public PackageMetric getBCCMetric(SourceContainer pSourceContainer) {
 		IPreferenceStore store = Activator.getDefault().getPreferenceStore();
 		Date startDate = this.StringToDate(store.getString("bccStart"));
 		Date endDate = this.StringToDate(store.getString("bccEnd"));
 		
 		float bccValue = this.getBCCForPeriod(pSourceContainer, startDate, endDate);
-		BCCMetric bccMetric = new BCCMetric();
-		bccMetric.setValue(bccValue);
-		bccMetric.setPeriodStart(startDate);
-		bccMetric.setPeriodEnd(endDate);
+		PackageMetric bccMetric = new PackageMetric();
+		bccMetric.setValue(new Double(bccValue));
+		bccMetric.setStart(startDate);
+		bccMetric.setEnd(endDate);
 		return bccMetric;
 		
 //		List<Type> modifiedClassForPackage = this
@@ -519,10 +520,10 @@ public class PackageMetrics {
 	 * @param pSourceContainer
 	 * @return A list of Value
 	 */
-	public List<BCCMetric> getBCCPeriodBased(SourceContainer pSourceContainer) {
+	public List<PackageMetric> getBCCPeriodBased(SourceContainer pSourceContainer) {
 		Project project = new ProjectDAO().getProject(pSourceContainer
 				.getProjectId());
-		List<BCCMetric> listBCC = new ArrayList<>();
+		List<PackageMetric> listBCC = new ArrayList<>();
 
 		int gregorianInterval = 0;
 
@@ -548,11 +549,11 @@ public class PackageMetrics {
 			Date auxEnd = startDate.getTime();
 			float bccValue = this.getBCCForPeriod(pSourceContainer, auxStart,
 					auxEnd);
-			BCCMetric currentBCC = new BCCMetric();
-			currentBCC.setValue(bccValue);
-			currentBCC.setPeriodStart(auxStart);;
-			currentBCC.setPeriodEnd(endDate);;
-			listBCC.add(currentBCC);
+			PackageMetric currentBcc = new PackageMetric();			
+			currentBcc.setValue(new Double(bccValue));
+			currentBcc.setStart(auxStart);
+			currentBcc.setEnd(auxEnd);
+			listBCC.add(currentBcc);
 		}
 
 		return listBCC;

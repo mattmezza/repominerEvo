@@ -14,7 +14,7 @@ public class PackageMetric extends Metric {
 	private Double value;
 	private Date start;
 	private Date end;
-
+	
 	public PackageMetric() {
 
 	}
