@@ -45,16 +45,22 @@ public class PreferencePage extends FieldEditorPreferencePage implements
 				"What is the &password of the dbms user?",
 				getFieldEditorParent()));
 		addField(new StringFieldEditor(PreferenceConstants.S_BCC,
-				"Start date for BCC metric", getFieldEditorParent()));
+				"Period start date", getFieldEditorParent()));
 		addField(new StringFieldEditor(PreferenceConstants.E_BCC,
-				"End date for BCC metric", getFieldEditorParent()));
+				"Period end date", getFieldEditorParent()));
 		;
 		addField(new StringFieldEditor(PreferenceConstants.PERIOD,
 				"Period lenght", getFieldEditorParent()));
 		addField(new RadioGroupFieldEditor(PreferenceConstants.INTERVAL,
-				"Select your interval", 1, new String[][] {
+				"Period unit", 1, new String[][] {
 						{ "Weeks", "WEEK" }, { "Months", "MONTH" },
 						{ "Years", "YEAR" } }, getFieldEditorParent()));
+		addField(new RadioGroupFieldEditor(PreferenceConstants.ECC_MODALITY,
+				"Select the modality you want to use to calculate ECCM metric",
+				1, new String[][] { { "Time based period", "time" },
+						{ "Modification limit based period", "modification" },
+						{ "Burst based period", "burst" } },
+				getFieldEditorParent()));
 	}
 
 	/*
