@@ -15,6 +15,26 @@ public class Metric {
 
 	public static final String BCC_DESCRIPTION="System entropy calculated by the Basic Code Change Model";
 	public static final String BCC_NAME="BCC_Model";
+	public static final String NAUTH_NAME = "NAUTH";
+	public static final String NAUTH_DESCRIPTION = "Number of authors of changes made on a package";
+	public static final String REVISION_NAME = "NR";
+	public static final String REVISION_DESCRIPTION = "Number of revision of the system";
+	public static final String CHANGE_SET_SIZE_NAME = "mean_CHANGE_SET_SIZE";
+	public static final String CHANGE_SET_SIZE_DESCRIPTION = "Mean dimension of modified files of a package";
+	public static final String NCHANGE_NAME = "mean_NCHANGE";
+	public static final String NCHANGE_DESCRIPTION = "Mean number of time in which files of a package have been modified";
+	public static final String NREF_NAME = "mean_NREF";
+	public static final String NREF_DESCRIPTION = "Mean number of time in which files of a package have been refactored";
+	public static final String NFIX_NAME = "mean_NFIX";
+	public static final String NFIX_DESCRIPTION = "Mean number of time in which files of a package have been fixed for a bug";
+	public static final String SUM_LINES_NAME = "Sum_LINES";
+	public static final String SUM_LINES_DESCRIPTION = "Sum of all the insertions or deletions made on the files of a package";
+	public static final String MEAN_LINES_NAME = "Mean_LINES";
+	public static final String MEAN_LINES_DESCRIPTION = "Mean number of insertions or deletions made on the files of a package";
+	public static final String MAX_LINES_NAME = "Max_LINES";
+	public static final String MAX_LINES_DESCRIPTION = "Maximum number of insertions or deletions made on the files of a package";
+	public static final String ECC_NAME = "ECC_Model";
+	public static final String ECC_DESCRIPTION = "System entropy calculated by the Extended Code Change Model";
 	
 	public Metric(Integer id, String name, String description) {
 		this.id = id;
