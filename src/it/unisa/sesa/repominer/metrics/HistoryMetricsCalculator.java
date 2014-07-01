@@ -56,12 +56,14 @@ public class HistoryMetricsCalculator {
 		int periodLenght = store.getInt("period");
 		String interval = store.getString("interval");
 		String mode = store.getString("eccModality");
+		String pStartDate = store.getString("bccStart");
+		String pEndDateString = store.getString("bccEnd");
 
 		int NAUTH = packageMetrics.getNumberOfAuthor(pSourceContainer);
 
 		PackageMetric nauth = new PackageMetric();
-		nauth.setDescription("Number of authors of changes made on a package");
-		nauth.setName("NAUTH");
+		nauth.setDescription(Metric.NAUTH_DESCRIPTION);
+		nauth.setName(Metric.NAUTH_NAME);
 		nauth.setPackageId(pSourceContainer.getId());
 		nauth.setValue(new Double(NAUTH));
 		nauth.setStart(startDate);
@@ -75,8 +77,8 @@ public class HistoryMetricsCalculator {
 
 		PackageMetric meanChangeSetSize = new PackageMetric();
 		meanChangeSetSize
-				.setDescription("Mean dimension of modified files of a package");
-		meanChangeSetSize.setName("mean_CHANGE_SET_SIZE");
+				.setDescription(Metric.CHANGE_SET_SIZE_DESCRIPTION);
+		meanChangeSetSize.setName(Metric.CHANGE_SET_SIZE_NAME);
 		meanChangeSetSize.setPackageId(pSourceContainer.getId());
 		meanChangeSetSize.setValue(new Double(changeSetSize));
 		meanChangeSetSize.setStart(startDate);
@@ -90,8 +92,8 @@ public class HistoryMetricsCalculator {
 
 		PackageMetric meanNChange = new PackageMetric();
 		meanNChange
-				.setDescription("Mean number of time in which files of a package have been modified");
-		meanNChange.setName("mean_NCHANGE");
+				.setDescription(Metric.NCHANGE_DESCRIPTION);
+		meanNChange.setName(Metric.NCHANGE_NAME);
 		meanNChange.setPackageId(pSourceContainer.getId());
 		meanNChange.setValue(new Double(mean_NCHANGE_value));
 		meanNChange.setStart(startDate);
@@ -105,8 +107,8 @@ public class HistoryMetricsCalculator {
 
 		PackageMetric meanNRefMetric = new PackageMetric();
 		meanNRefMetric
-				.setDescription("Mean number of time in which files of a package have been refactored");
-		meanNRefMetric.setName("mean_NREF");
+				.setDescription(Metric.NREF_DESCRIPTION);
+		meanNRefMetric.setName(Metric.NREF_NAME);
 		meanNRefMetric.setPackageId(pSourceContainer.getId());
 		meanNRefMetric.setValue(new Double(mean_NREF_value));
 		meanNRefMetric.setStart(startDate);
@@ -120,8 +122,8 @@ public class HistoryMetricsCalculator {
 
 		PackageMetric meanNFixMetric = new PackageMetric();
 		meanNFixMetric
-				.setDescription("Mean number of time in which files of a package have been fixed for a bug");
-		meanNFixMetric.setName("mean_NFIX");
+				.setDescription(Metric.NFIX_DESCRIPTION);
+		meanNFixMetric.setName(Metric.NFIX_NAME);
 		meanNFixMetric.setPackageId(pSourceContainer.getId());
 		meanNFixMetric.setValue(new Double(mean_NFIX_value));
 		meanNFixMetric.setStart(startDate);
@@ -136,8 +138,8 @@ public class HistoryMetricsCalculator {
 		Double sum = info[0];
 		PackageMetric sumInsertionsMetric = new PackageMetric();
 		sumInsertionsMetric
-				.setDescription("Sum of all the insertions or deletions made on the files of a package");
-		sumInsertionsMetric.setName("Sum_LINES");
+				.setDescription(Metric.SUM_LINES_DESCRIPTION);
+		sumInsertionsMetric.setName(Metric.SUM_LINES_NAME);
 		sumInsertionsMetric.setPackageId(pSourceContainer.getId());
 		sumInsertionsMetric.setValue(new Double(sum));
 		sumInsertionsMetric.setStart(startDate);
@@ -149,8 +151,8 @@ public class HistoryMetricsCalculator {
 		Double mean = info[1];
 		PackageMetric meanInsertionsMetric = new PackageMetric();
 		meanInsertionsMetric
-				.setDescription("Mean number of insertions or deletions made on the files of a package");
-		meanInsertionsMetric.setName("Mean_LINES");
+				.setDescription(Metric.MEAN_LINES_DESCRIPTION);
+		meanInsertionsMetric.setName(Metric.MEAN_LINES_NAME);
 		meanInsertionsMetric.setPackageId(pSourceContainer.getId());
 		meanInsertionsMetric.setValue(new Double(mean));
 		meanInsertionsMetric.setStart(startDate);
@@ -162,8 +164,8 @@ public class HistoryMetricsCalculator {
 		Double max = info[2];
 		PackageMetric maxInsertionsMetric = new PackageMetric();
 		maxInsertionsMetric
-				.setDescription("Maximum number of insertions or deletions made on the files of a package");
-		maxInsertionsMetric.setName("Max_LINES");
+				.setDescription(Metric.MAX_LINES_DESCRIPTION);
+		maxInsertionsMetric.setName(Metric.MEAN_LINES_NAME);
 		maxInsertionsMetric.setPackageId(pSourceContainer.getId());
 		maxInsertionsMetric.setValue(new Double(max));
 		maxInsertionsMetric.setStart(startDate);
@@ -172,7 +174,8 @@ public class HistoryMetricsCalculator {
 		System.out.println("Metric Max_LINES: " + max
 				+ " correctly saved into db");
 
-		PackageMetric bcc = packageMetrics.getBCCMetric(pSourceContainer);
+		PackageMetric bcc = packageMetrics.getBCCMetric(pSourceContainer,
+				pStartDate, pEndDateString);
 		bcc.setDescription(Metric.BCC_DESCRIPTION);
 		bcc.setName(Metric.BCC_NAME);
 		bcc.setPackageId(pSourceContainer.getId());
@@ -180,8 +183,8 @@ public class HistoryMetricsCalculator {
 		System.out.println("Metric Basic Code Change Model: " + bcc.getValue()
 				+ " correctly saved into db");
 
-		List<PackageMetric> bbcPeriods = packageMetrics
-				.getBCCPeriodBased(pSourceContainer);
+		List<PackageMetric> bbcPeriods = packageMetrics.getBCCPeriodBased(
+				pSourceContainer, periodLenght, interval);
 		int index = 1;
 		for (PackageMetric singleBCC : bbcPeriods) {
 			singleBCC.setDescription(Metric.BCC_DESCRIPTION);

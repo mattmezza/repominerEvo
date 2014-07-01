@@ -1,6 +1,5 @@
 package it.unisa.sesa.repominer.metrics;
 
-import it.unisa.sesa.repominer.Activator;
 import it.unisa.sesa.repominer.db.ChangeDAO;
 import it.unisa.sesa.repominer.db.ChangeForCommitDAO;
 import it.unisa.sesa.repominer.db.ProjectDAO;
@@ -24,8 +23,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.eclipse.jface.preference.IPreferenceStore;
 
 public class PackageMetrics {
 
@@ -435,10 +432,10 @@ public class PackageMetrics {
 	 * @return The float value of BCC Metric for time period specified in
 	 *         preference panel
 	 */
-	public PackageMetric getBCCMetric(SourceContainer pSourceContainer) {
-		IPreferenceStore store = Activator.getDefault().getPreferenceStore();
-		Date startDate = this.StringToDate(store.getString("bccStart"));
-		Date endDate = this.StringToDate(store.getString("bccEnd"));
+	public PackageMetric getBCCMetric(SourceContainer pSourceContainer,
+			String pStartDate, String pEndDate) {
+		Date startDate = this.StringToDate(pStartDate);
+		Date endDate = this.StringToDate(pEndDate);
 
 		double bccValue = this.getBCCForPeriod(pSourceContainer, startDate,
 				endDate);
@@ -447,74 +444,6 @@ public class PackageMetrics {
 		bccMetric.setStart(startDate);
 		bccMetric.setEnd(endDate);
 		return bccMetric;
-
-		// List<Type> modifiedClassForPackage = this
-		// .getModifiedClassForPackage(pSourceContainer);
-		// Map<String, Integer> occurrenceTable = new HashMap<>();
-		//
-		// // We take all changes for a project
-		// Project project = new ProjectDAO().getProject(pSourceContainer
-		// .getProjectId());
-		// // We use getChangesByDate method
-		// List<Change> changes = new ChangeDAO()
-		// .getChangesByDateInPreferences(project);
-		// if (changes.isEmpty()) {
-		// return 0;
-		// }
-		//
-		// float allFI = 0;
-		// for (Type modifiedFile : modifiedClassForPackage) {
-		// // Initialization of occurrenceTable with 0 occurrences
-		// occurrenceTable.put(modifiedFile.getSrcFileLocation(), 0);
-		// for (Change change : changes) {
-		//
-		// Matcher matcher = PATTERN_BUG_FIXING.matcher(change.getMessage());
-		// Boolean isBug = matcher.matches();
-		// matcher = PATTERN_REFACTORING.matcher(change.getMessage());
-		// Boolean isRef = matcher.matches();
-		// boolean isNotFI = isBug || isRef;
-		// if (isNotFI) {
-		// // Reversed condition - only FI modification
-		// continue;
-		// }
-		//
-		// List<ChangeForCommit> changesForCommit = new ChangeForCommitDAO()
-		// .getChangeForCommitOfChange(change);
-		//
-		// for (ChangeForCommit changeForCommit : changesForCommit) {
-		// if (changeForCommit.getModifiedFile().equals(
-		// modifiedFile.getSrcFileLocation())) {
-		// int aux = occurrenceTable.get(modifiedFile
-		// .getSrcFileLocation());
-		// occurrenceTable.put(modifiedFile.getSrcFileLocation(),
-		// aux+1);
-		// allFI += 1;
-		// }
-		// }
-		// }
-		// }
-		//
-		// if (occurrenceTable.size() == 0) {
-		// return 0;
-		// }
-		//
-		// float[] probabilty = new float[occurrenceTable.size()];
-		//
-		// int index = 0;
-		// // Iterating over occurrenceTable values
-		// for (Integer occurenceValue : occurrenceTable.values()) {
-		// probabilty[index] = occurenceValue / allFI;
-		// index++;
-		// }
-		//
-		// float BCCMetric = 0;
-		// for (int i = 0; i < probabilty.length; i++) {
-		// BCCMetric += probabilty[i] * this.log2(probabilty[i]);
-		// }
-		// BCCMetric = BCCMetric * -1;
-		//
-		// return BCCMetric;
-
 	}
 
 	/**
@@ -527,16 +456,12 @@ public class PackageMetrics {
 	 * @return A list of PackageMetric
 	 */
 	public List<PackageMetric> getBCCPeriodBased(
-			SourceContainer pSourceContainer) {
+			SourceContainer pSourceContainer, int pPeriod, String pInterval) {
 		Project project = new ProjectDAO().getProject(pSourceContainer
 				.getProjectId());
 		List<PackageMetric> listBCC = new ArrayList<>();
 
-		IPreferenceStore store = Activator.getDefault().getPreferenceStore();
-		int periodLenght = store.getInt("period");
-		String interval = store.getString("interval");
-
-		int gregorianInterval = this.gregorianInterval(interval);
+		int gregorianInterval = this.gregorianInterval(pInterval);
 
 		Calendar startDate = this.DateToCalendar(new ChangeDAO()
 				.getProjectStartDate(project));
@@ -544,7 +469,7 @@ public class PackageMetrics {
 
 		while (startDate.getTime().before(endDate)) {
 			Date auxStart = startDate.getTime();
-			startDate.add(gregorianInterval, periodLenght);
+			startDate.add(gregorianInterval, pPeriod);
 			Date auxEnd = startDate.getTime();
 			double bccValue = this.getBCCForPeriod(pSourceContainer, auxStart,
 					auxEnd);
@@ -558,6 +483,14 @@ public class PackageMetrics {
 		return listBCC;
 	}
 
+	/**
+	 * This method calculates the offset to add at current data to calculate a
+	 * time based period for BCC or ECC Model
+	 * 
+	 * @param pInterval
+	 *            interval for period based time in preference panel
+	 * @return
+	 */
 	private int gregorianInterval(String pInterval) {
 		if (pInterval.equals("WEEK")) {
 			return GregorianCalendar.WEEK_OF_YEAR;
@@ -603,7 +536,7 @@ public class PackageMetrics {
 			currentEcc.setEnd(auxEnd);
 			listECC.add(currentEcc);
 		}
-		
+
 		return listECC;
 	}
 
@@ -615,7 +548,7 @@ public class PackageMetrics {
 	 * @param pSourceContainer
 	 * @param pDate1
 	 * @param pDate2
-	 * @return The float value for BCC Metric of this period
+	 * @return The double value for BCC Metric of this period
 	 */
 	private double getBCCForPeriod(SourceContainer pSourceContainer,
 			Date pDate1, Date pDate2) {
@@ -701,7 +634,7 @@ public class PackageMetrics {
 	 * @param pSourceContainer
 	 * @param pDate1
 	 * @param pDate2
-	 * @return The float value for ECC Metric of this period
+	 * @return The double value for ECC Metric of this period
 	 */
 	private double getECCForPeriod(SourceContainer pSourceContainer,
 			Date pDate1, Date pDate2) {
@@ -722,7 +655,7 @@ public class PackageMetrics {
 			return 0;
 		}
 
-		double FIcounter = 0;
+		double FIcounter = 0; // Total of FI changes occurred
 		for (Type modifiedFile : modifiedClassForPackage) {
 			int aux = 0; // counter for occurrence table
 			for (Change change : changes) {
