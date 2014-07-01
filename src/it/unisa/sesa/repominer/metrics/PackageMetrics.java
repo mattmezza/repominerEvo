@@ -506,10 +506,10 @@ public class PackageMetrics {
 	 * @param pSourceContainer
 	 * @return A list of Value
 	 */
-	public float[] getBCCPeriodBased(SourceContainer pSourceContainer) {
+	public List<BCCMetric> getBCCPeriodBased(SourceContainer pSourceContainer) {
 		Project project = new ProjectDAO().getProject(pSourceContainer
 				.getProjectId());
-		List<Float> listBCC = new ArrayList<>();
+		List<BCCMetric> listBCC = new ArrayList<>();
 
 		int gregorianInterval = 0;
 
@@ -533,19 +533,16 @@ public class PackageMetrics {
 			Date auxStart = startDate.getTime();
 			startDate.add(gregorianInterval, periodLenght);
 			Date auxEnd = startDate.getTime();
-			float currentBCC = this.getBCCForPeriod(pSourceContainer, auxStart,
+			float bccValue = this.getBCCForPeriod(pSourceContainer, auxStart,
 					auxEnd);
+			BCCMetric currentBCC = new BCCMetric();
+			currentBCC.setValue(bccValue);
+			currentBCC.setPeriodStart(auxStart);;
+			currentBCC.setPeriodEnd(endDate);;
 			listBCC.add(currentBCC);
 		}
 
-		float[] BCCMetrics = new float[listBCC.size()];
-
-		int i = 0;
-		for (Float bcc : listBCC) {
-			BCCMetrics[i] = (bcc != null ? bcc : Float.NaN);
-			i++;
-		}
-		return BCCMetrics;
+		return listBCC;
 	}
 
 	/**

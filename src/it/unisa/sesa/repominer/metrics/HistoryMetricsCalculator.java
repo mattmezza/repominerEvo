@@ -1,5 +1,7 @@
 package it.unisa.sesa.repominer.metrics;
 
+import java.util.List;
+
 import it.unisa.sesa.repominer.db.PackageMetricDAO;
 import it.unisa.sesa.repominer.db.ProjectMetricDAO;
 import it.unisa.sesa.repominer.db.entities.PackageMetric;
@@ -138,16 +140,35 @@ public class HistoryMetricsCalculator {
 
 		float bcc = packageMetrics.getBCCMetric(pSourceContainer);
 		PackageMetric bccMetric = new PackageMetric();
-		bccMetric.setDescription("System entropy calculated by the Basic Code Change Model");
+		bccMetric
+				.setDescription("System entropy calculated by the Basic Code Change Model");
 		bccMetric.setName("BCC_Model");
 		bccMetric.setPackageId(pSourceContainer.getId());
 		bccMetric.setValue(new Double(bcc));
 		packageMetricDAO.saveMetric(bccMetric);
-		System.out.println("Metric Basic Code Change Model: " + bcc + " correctly saved into db");
-		
-		float[] bbcPeriods = packageMetrics.getBCCPeriodBased(pSourceContainer);
-		for (int i = 0; i < bbcPeriods.length; i++) {
-			System.out.println("BCC Metric value in period no. " + (i+1) + " is " + bbcPeriods[i]);
+		System.out.println("Metric Basic Code Change Model: " + bcc
+				+ " correctly saved into db");
+
+		List<BCCMetric> bbcPeriods = packageMetrics
+				.getBCCPeriodBased(pSourceContainer);
+		int index = 1;
+		for (BCCMetric singleBCC : bbcPeriods) {
+			PackageMetric bccPeriodsMetric = new PackageMetric();
+			bccPeriodsMetric
+					.setDescription("BCC Metric for a time based period");
+			bccPeriodsMetric.setName("BCC");
+			bccPeriodsMetric.setPackageId(pSourceContainer.getId());
+			bccPeriodsMetric.setValue(new Double(singleBCC.getValue()));
+			bccPeriodsMetric.setStartDate(singleBCC.getPeriodStart());
+			bccPeriodsMetric.setEndDate(singleBCC.getPeriodEnd());
+			System.out
+					.println("Metric Basic Code Change Model calculate for period no. "
+							+ index
+							+ ": "
+							+ singleBCC.getValue()
+							+ "correctly saved into db");
+			index++;
 		}
+
 	}
 }
