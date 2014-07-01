@@ -29,8 +29,11 @@ import org.eclipse.jface.preference.IPreferenceStore;
 
 public class PackageMetrics {
 
-	private static final Pattern PATTERN_BUG_FIXING = Pattern.compile(".*[Bb][Uu][Gg]([sS])?([^a-zA-Z0-9])*[Ff][iI][xX].*", Pattern.DOTALL);
-	private static final Pattern PATTERN_REFACTORING = Pattern.compile(".*[rR][eE][fF][aA][cC][tT][oO][rR].*", Pattern.DOTALL);
+	private static final Pattern PATTERN_BUG_FIXING = Pattern.compile(
+			".*[Bb][Uu][Gg]([sS])?([^a-zA-Z0-9])*[Ff][iI][xX].*",
+			Pattern.DOTALL);
+	private static final Pattern PATTERN_REFACTORING = Pattern.compile(
+			".*[rR][eE][fF][aA][cC][tT][oO][rR].*", Pattern.DOTALL);
 
 	/**
 	 * This method calculate NR metric. The NR metric represent system number of
@@ -53,7 +56,7 @@ public class PackageMetrics {
 					if (currType.getSrcFileLocation().equals(
 							changeForCommit.getModifiedFile())) {
 						String author = change.getDevMail();
-						if(author == null || author.isEmpty()) {
+						if (author == null || author.isEmpty()) {
 							author = change.getDevId();
 						}
 						if (!authors.contains(author)) {
@@ -163,7 +166,8 @@ public class PackageMetrics {
 			occurrenceTable.put(modifiedFile.getSrcFileLocation(), 0);
 			for (Change change : changes) {
 
-				Matcher matcher = PATTERN_REFACTORING.matcher(change.getMessage());
+				Matcher matcher = PATTERN_REFACTORING.matcher(change
+						.getMessage());
 				Boolean isRefactoring = matcher.matches();
 				if (!isRefactoring) {
 					continue;
@@ -218,7 +222,8 @@ public class PackageMetrics {
 			occurrenceTable.put(modifiedFile.getSrcFileLocation(), 0);
 			for (Change change : changes) {
 
-				Matcher matcher = PATTERN_BUG_FIXING.matcher(change.getMessage());
+				Matcher matcher = PATTERN_BUG_FIXING.matcher(change
+						.getMessage());
 				Boolean isBug = matcher.matches();
 				if (!isBug) {
 					continue;
@@ -434,80 +439,81 @@ public class PackageMetrics {
 		IPreferenceStore store = Activator.getDefault().getPreferenceStore();
 		Date startDate = this.StringToDate(store.getString("bccStart"));
 		Date endDate = this.StringToDate(store.getString("bccEnd"));
-		
-		float bccValue = this.getBCCForPeriod(pSourceContainer, startDate, endDate);
+
+		double bccValue = this.getBCCForPeriod(pSourceContainer, startDate,
+				endDate);
 		PackageMetric bccMetric = new PackageMetric();
-		bccMetric.setValue(new Double(bccValue));
+		bccMetric.setValue(bccValue);
 		bccMetric.setStart(startDate);
 		bccMetric.setEnd(endDate);
 		return bccMetric;
-		
-//		List<Type> modifiedClassForPackage = this
-//				.getModifiedClassForPackage(pSourceContainer);
-//		Map<String, Integer> occurrenceTable = new HashMap<>();
-//
-//		// We take all changes for a project
-//		Project project = new ProjectDAO().getProject(pSourceContainer
-//				.getProjectId());
-//		// We use getChangesByDate method
-//		List<Change> changes = new ChangeDAO()
-//				.getChangesByDateInPreferences(project);
-//		if (changes.isEmpty()) {
-//			return 0;
-//		}
-//
-//		float allFI = 0;
-//		for (Type modifiedFile : modifiedClassForPackage) {
-//			// Initialization of occurrenceTable with 0 occurrences
-//			occurrenceTable.put(modifiedFile.getSrcFileLocation(), 0);
-//			for (Change change : changes) {
-//
-//				Matcher matcher = PATTERN_BUG_FIXING.matcher(change.getMessage());
-//				Boolean isBug = matcher.matches();
-//				matcher = PATTERN_REFACTORING.matcher(change.getMessage());
-//				Boolean isRef = matcher.matches();
-//				boolean isNotFI = isBug || isRef;
-//				if (isNotFI) {
-//					// Reversed condition - only FI modification
-//					continue;
-//				}
-//
-//				List<ChangeForCommit> changesForCommit = new ChangeForCommitDAO()
-//						.getChangeForCommitOfChange(change);
-//
-//				for (ChangeForCommit changeForCommit : changesForCommit) {
-//					if (changeForCommit.getModifiedFile().equals(
-//							modifiedFile.getSrcFileLocation())) {
-//						int aux = occurrenceTable.get(modifiedFile
-//								.getSrcFileLocation());
-//						occurrenceTable.put(modifiedFile.getSrcFileLocation(),
-//								aux+1);
-//						allFI += 1;
-//					}
-//				}
-//			}
-//		}
-//
-//		if (occurrenceTable.size() == 0) {
-//			return 0;
-//		}
-//
-//		float[] probabilty = new float[occurrenceTable.size()];
-//
-//		int index = 0;
-//		// Iterating over occurrenceTable values
-//		for (Integer occurenceValue : occurrenceTable.values()) {
-//			probabilty[index] = occurenceValue / allFI;
-//			index++;
-//		}
-//
-//		float BCCMetric = 0;
-//		for (int i = 0; i < probabilty.length; i++) {
-//			BCCMetric += probabilty[i] * this.log2(probabilty[i]);
-//		}
-//		BCCMetric = BCCMetric * -1;
-//
-//		return BCCMetric;
+
+		// List<Type> modifiedClassForPackage = this
+		// .getModifiedClassForPackage(pSourceContainer);
+		// Map<String, Integer> occurrenceTable = new HashMap<>();
+		//
+		// // We take all changes for a project
+		// Project project = new ProjectDAO().getProject(pSourceContainer
+		// .getProjectId());
+		// // We use getChangesByDate method
+		// List<Change> changes = new ChangeDAO()
+		// .getChangesByDateInPreferences(project);
+		// if (changes.isEmpty()) {
+		// return 0;
+		// }
+		//
+		// float allFI = 0;
+		// for (Type modifiedFile : modifiedClassForPackage) {
+		// // Initialization of occurrenceTable with 0 occurrences
+		// occurrenceTable.put(modifiedFile.getSrcFileLocation(), 0);
+		// for (Change change : changes) {
+		//
+		// Matcher matcher = PATTERN_BUG_FIXING.matcher(change.getMessage());
+		// Boolean isBug = matcher.matches();
+		// matcher = PATTERN_REFACTORING.matcher(change.getMessage());
+		// Boolean isRef = matcher.matches();
+		// boolean isNotFI = isBug || isRef;
+		// if (isNotFI) {
+		// // Reversed condition - only FI modification
+		// continue;
+		// }
+		//
+		// List<ChangeForCommit> changesForCommit = new ChangeForCommitDAO()
+		// .getChangeForCommitOfChange(change);
+		//
+		// for (ChangeForCommit changeForCommit : changesForCommit) {
+		// if (changeForCommit.getModifiedFile().equals(
+		// modifiedFile.getSrcFileLocation())) {
+		// int aux = occurrenceTable.get(modifiedFile
+		// .getSrcFileLocation());
+		// occurrenceTable.put(modifiedFile.getSrcFileLocation(),
+		// aux+1);
+		// allFI += 1;
+		// }
+		// }
+		// }
+		// }
+		//
+		// if (occurrenceTable.size() == 0) {
+		// return 0;
+		// }
+		//
+		// float[] probabilty = new float[occurrenceTable.size()];
+		//
+		// int index = 0;
+		// // Iterating over occurrenceTable values
+		// for (Integer occurenceValue : occurrenceTable.values()) {
+		// probabilty[index] = occurenceValue / allFI;
+		// index++;
+		// }
+		//
+		// float BCCMetric = 0;
+		// for (int i = 0; i < probabilty.length; i++) {
+		// BCCMetric += probabilty[i] * this.log2(probabilty[i]);
+		// }
+		// BCCMetric = BCCMetric * -1;
+		//
+		// return BCCMetric;
 
 	}
 
@@ -518,26 +524,19 @@ public class PackageMetrics {
 	 * interval time is specified in preference panel
 	 * 
 	 * @param pSourceContainer
-	 * @return A list of Value
+	 * @return A list of PackageMetric
 	 */
-	public List<PackageMetric> getBCCPeriodBased(SourceContainer pSourceContainer) {
+	public List<PackageMetric> getBCCPeriodBased(
+			SourceContainer pSourceContainer) {
 		Project project = new ProjectDAO().getProject(pSourceContainer
 				.getProjectId());
 		List<PackageMetric> listBCC = new ArrayList<>();
-
-		int gregorianInterval = 0;
 
 		IPreferenceStore store = Activator.getDefault().getPreferenceStore();
 		int periodLenght = store.getInt("period");
 		String interval = store.getString("interval");
 
-		if (interval.equals("WEEK")) {
-			gregorianInterval = GregorianCalendar.WEEK_OF_YEAR;
-		} else if (interval.equals("YEAR")) {
-			gregorianInterval = GregorianCalendar.YEAR;
-		} else if (interval.equals("MONTH")) {
-			gregorianInterval = GregorianCalendar.MONTH;
-		}
+		int gregorianInterval = this.gregorianInterval(interval);
 
 		Calendar startDate = this.DateToCalendar(new ChangeDAO()
 				.getProjectStartDate(project));
@@ -547,10 +546,10 @@ public class PackageMetrics {
 			Date auxStart = startDate.getTime();
 			startDate.add(gregorianInterval, periodLenght);
 			Date auxEnd = startDate.getTime();
-			float bccValue = this.getBCCForPeriod(pSourceContainer, auxStart,
+			double bccValue = this.getBCCForPeriod(pSourceContainer, auxStart,
 					auxEnd);
-			PackageMetric currentBcc = new PackageMetric();			
-			currentBcc.setValue(new Double(bccValue));
+			PackageMetric currentBcc = new PackageMetric();
+			currentBcc.setValue(bccValue);
 			currentBcc.setStart(auxStart);
 			currentBcc.setEnd(auxEnd);
 			listBCC.add(currentBcc);
@@ -559,9 +558,58 @@ public class PackageMetrics {
 		return listBCC;
 	}
 
+	private int gregorianInterval(String pInterval) {
+		if (pInterval.equals("WEEK")) {
+			return GregorianCalendar.WEEK_OF_YEAR;
+		} else if (pInterval.equals("YEAR")) {
+			return GregorianCalendar.YEAR;
+		} else if (pInterval.equals("MONTH")) {
+			return GregorianCalendar.MONTH;
+		} else {
+			return 0;
+		}
+	}
+
+	public List<PackageMetric> getECC(SourceContainer pSourceContainer,
+			int pPeriod, String pInterval, String pMode) {
+		if (pMode.equals("time")) {
+			return this.getECCPeriodBased(pSourceContainer, pPeriod, pInterval);
+		}
+		return null;
+	}
+
+	private List<PackageMetric> getECCPeriodBased(
+			SourceContainer pSourceContainer, int pPeriod, String pInterval) {
+		int gregorianInterval = this.gregorianInterval(pInterval);
+
+		Project project = new ProjectDAO().getProject(pSourceContainer
+				.getProjectId());
+
+		Calendar startDate = this.DateToCalendar(new ChangeDAO()
+				.getProjectStartDate(project));
+		Date endDate = new ChangeDAO().getProjectEndDate(project);
+
+		List<PackageMetric> listECC = new ArrayList<>();
+
+		while (startDate.getTime().before(endDate)) {
+			Date auxStart = startDate.getTime();
+			startDate.add(gregorianInterval, pPeriod);
+			Date auxEnd = startDate.getTime();
+			double eccValue = this.getECCForPeriod(pSourceContainer, auxStart,
+					auxEnd);
+			PackageMetric currentEcc = new PackageMetric();
+			currentEcc.setValue(eccValue);
+			currentEcc.setStart(auxStart);
+			currentEcc.setEnd(auxEnd);
+			listECC.add(currentEcc);
+		}
+		
+		return listECC;
+	}
+
 	/**
 	 * This method calculate the BCC value for package passed as parameter
-	 * considering only changes occurred between two Date always passed as
+	 * considering only changes occurred between two Dates always passed as
 	 * parameters
 	 * 
 	 * @param pSourceContainer
@@ -569,14 +617,12 @@ public class PackageMetrics {
 	 * @param pDate2
 	 * @return The float value for BCC Metric of this period
 	 */
-	private float getBCCForPeriod(SourceContainer pSourceContainer,
+	private double getBCCForPeriod(SourceContainer pSourceContainer,
 			Date pDate1, Date pDate2) {
 
 		List<Type> modifiedClassForPackage = this
 				.getModifiedClassForPackage(pSourceContainer);
 		Map<String, Integer> occurrenceTable = new HashMap<>();
-
-		String keyWord = "[^bB]*bug(s?)([^a-zA-Z0-9]?)fix.*";
 
 		// We take all changes for a project
 		Project project = new ProjectDAO().getProject(pSourceContainer
@@ -590,12 +636,17 @@ public class PackageMetrics {
 			return 0;
 		}
 
-		float allFI = 0;
+		double allFI = 0;
 		for (Type modifiedFile : modifiedClassForPackage) {
 			int aux = 0; // counter for occurrence table
 			for (Change change : changes) {
 
-				Boolean isNotFI = change.getMessage().matches(keyWord);
+				Matcher matcher = PATTERN_BUG_FIXING.matcher(change
+						.getMessage());
+				Boolean isBug = matcher.matches();
+				matcher = PATTERN_REFACTORING.matcher(change.getMessage());
+				Boolean isRef = matcher.matches();
+				boolean isNotFI = isBug || isRef;
 				if (isNotFI) {
 					// Reversed condition - only FI modification
 					continue;
@@ -620,7 +671,7 @@ public class PackageMetrics {
 			return 0f;
 		}
 
-		float[] probabilty = new float[occurrenceTable.size()];
+		double[] probabilty = new double[occurrenceTable.size()];
 
 		int index = 0;
 		// Iterating over occurrenceTable values
@@ -629,7 +680,7 @@ public class PackageMetrics {
 			index++;
 		}
 
-		float BCCMetric = 0;
+		double BCCMetric = 0;
 		for (int i = 0; i < probabilty.length; i++) {
 			BCCMetric += probabilty[i] * this.log2(probabilty[i]);
 		}
@@ -643,13 +694,99 @@ public class PackageMetrics {
 	}
 
 	/**
+	 * This method calculate the ECC value for package passed as parameter
+	 * considering only changes occurred between two Dates always passed as
+	 * parameters
+	 * 
+	 * @param pSourceContainer
+	 * @param pDate1
+	 * @param pDate2
+	 * @return The float value for ECC Metric of this period
+	 */
+	private double getECCForPeriod(SourceContainer pSourceContainer,
+			Date pDate1, Date pDate2) {
+
+		List<Type> modifiedClassForPackage = this
+				.getModifiedClassForPackage(pSourceContainer);
+		Map<String, Integer> occurrenceTable = new HashMap<>();
+
+		// We take all changes for a project
+		Project project = new ProjectDAO().getProject(pSourceContainer
+				.getProjectId());
+		// We use getChangesByDateInterval getting all changes occurred in
+		// selected period
+		List<Change> changes = new ChangeDAO().getChangesByDateInterval(
+				project, pDate1, pDate2);
+
+		if (changes.isEmpty()) {
+			return 0;
+		}
+
+		double FIcounter = 0;
+		for (Type modifiedFile : modifiedClassForPackage) {
+			int aux = 0; // counter for occurrence table
+			for (Change change : changes) {
+
+				Matcher matcher = PATTERN_BUG_FIXING.matcher(change
+						.getMessage());
+				Boolean isBug = matcher.matches();
+				matcher = PATTERN_REFACTORING.matcher(change.getMessage());
+				Boolean isRef = matcher.matches();
+				boolean isNotFI = isBug || isRef;
+				if (isNotFI) {
+					// Reversed condition - only FI modification
+					continue;
+				}
+
+				List<ChangeForCommit> changesForCommit = new ChangeForCommitDAO()
+						.getChangeForCommitOfChange(change);
+
+				for (ChangeForCommit changeForCommit : changesForCommit) {
+					if (changeForCommit.getModifiedFile().equals(
+							modifiedFile.getSrcFileLocation())) {
+						aux += 1;
+						occurrenceTable.put(modifiedFile.getSrcFileLocation(),
+								aux);
+						FIcounter += 1;
+					}
+				}
+			}
+		}
+
+		if (occurrenceTable.size() == 0 || FIcounter == 0) {
+			return 0f;
+		}
+
+		double[] probabilty = new double[occurrenceTable.size()];
+
+		int index = 0;
+		// Iterating over occurrenceTable values
+		for (Integer occurenceValue : occurrenceTable.values()) {
+			probabilty[index] = occurenceValue / FIcounter;
+			index++;
+		}
+
+		double ECCMetric = 0;
+		for (int i = 0; i < probabilty.length; i++) {
+			ECCMetric += probabilty[i] * this.log2(probabilty[i]);
+		}
+		if (ECCMetric == 0) {
+			return 0;
+		}
+
+		ECCMetric = ECCMetric * (1 / this.log2(probabilty.length) * -1);
+
+		return ECCMetric;
+	}
+
+	/**
 	 * This function calculate the base-2 logarithm of a float number
 	 * 
 	 * @param pValue
 	 * @return Base-2 logarithm value
 	 */
-	private float log2(float pValue) {
-		return (float) (Math.log(pValue) / Math.log(2));
+	private double log2(double pValue) {
+		return (double) (Math.log(pValue) / Math.log(2));
 	}
 
 	/**
@@ -663,19 +800,20 @@ public class PackageMetrics {
 		calendar.setTime(pDate);
 		return calendar;
 	}
-	
+
 	/**
 	 * This method convert a String into a Date
+	 * 
 	 * @param pString
 	 * @return A Date Object
 	 */
-	private Date StringToDate(String pString){
+	private Date StringToDate(String pString) {
 		Date convertedDate = null;
 		DateFormat formatter = null;
-		
+
 		formatter = new SimpleDateFormat("yyyy/MM/dd");
 		try {
-			convertedDate=(Date) formatter.parse(pString);
+			convertedDate = (Date) formatter.parse(pString);
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}

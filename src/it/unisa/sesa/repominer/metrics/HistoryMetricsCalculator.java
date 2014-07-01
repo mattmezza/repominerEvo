@@ -3,6 +3,9 @@ package it.unisa.sesa.repominer.metrics;
 import java.util.Date;
 import java.util.List;
 
+import org.eclipse.jface.preference.IPreferenceStore;
+
+import it.unisa.sesa.repominer.Activator;
 import it.unisa.sesa.repominer.db.ChangeDAO;
 import it.unisa.sesa.repominer.db.PackageMetricDAO;
 import it.unisa.sesa.repominer.db.ProjectDAO;
@@ -47,6 +50,12 @@ public class HistoryMetricsCalculator {
 				.getProject(pSourceContainer.getProjectId()));
 		Date endDate = new ChangeDAO().getProjectEndDate(new ProjectDAO()
 				.getProject(pSourceContainer.getProjectId()));
+
+		// Get eclipse preferences
+		IPreferenceStore store = Activator.getDefault().getPreferenceStore();
+		int periodLenght = store.getInt("period");
+		String interval = store.getString("interval");
+		String mode = store.getString("eccModality");
 
 		int NAUTH = packageMetrics.getNumberOfAuthor(pSourceContainer);
 
@@ -186,6 +195,23 @@ public class HistoryMetricsCalculator {
 							+ singleBCC.getValue()
 							+ " correctly saved into db");
 			index++;
+		}
+
+		List<PackageMetric> ecc = packageMetrics.getECC(pSourceContainer,
+				periodLenght, interval, mode);
+		int index2 = 1;
+		for (PackageMetric packageMetric : ecc) {
+			packageMetric.setDescription(Metric.ECC_DESCRIPTION);
+			packageMetric.setName(Metric.ECC_NAME);
+			packageMetric.setPackageId(pSourceContainer.getId());
+			packageMetricDAO.saveMetric(packageMetric);
+			System.out
+					.println("Metric Extended Code Change Model calculate for period no. "
+							+ index2
+							+ ": "
+							+ packageMetric.getValue()
+							+ " correctly saved into db");
+			index2++;
 		}
 
 	}
