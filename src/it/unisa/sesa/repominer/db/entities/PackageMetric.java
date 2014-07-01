@@ -12,8 +12,8 @@ public class PackageMetric extends Metric {
 	@Column(name = "metric")
 	private Integer metricId;
 	private Double value;
-	private Date startDate;
-	private Date endDate;
+	private Date start;
+	private Date end;
 
 	public PackageMetric() {
 
@@ -26,8 +26,8 @@ public class PackageMetric extends Metric {
 		this.packageId = packageId;
 		this.metricId = metricId;
 		this.value = value;
-		this.startDate = startDate;
-		this.endDate = endDate;
+		this.start = startDate;
+		this.end = endDate;
 	}
 
 	public Integer getPackageId() {
@@ -54,40 +54,40 @@ public class PackageMetric extends Metric {
 		this.value = value;
 	}
 
-	public Date getStartDate() {
-		return startDate;
+	public Date getStart() {
+		return start;
 	}
 
-	public void setStartDate(Date startDate) {
-		this.startDate = startDate;
+	public void setStart(Date startDate) {
+		this.start = startDate;
 	}
 
-	public Date getEndDate() {
-		return endDate;
+	public Date getEnd() {
+		return end;
 	}
 
-	public void setEndDate(Date endDate) {
-		this.endDate = endDate;
+	public void setEnd(Date endDate) {
+		this.end = endDate;
 	}
 
 	@Override
 	public String toString() {
 		return "PackageMetric [packageId=" + packageId + ", metricId="
-				+ metricId + ", value=" + value + ", startDate=" + startDate
-				+ ", endDate=" + endDate + "]";
+				+ metricId + ", value=" + value + ", startDate=" + start
+				+ ", endDate=" + end + "]";
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
-		result = prime * result + ((endDate == null) ? 0 : endDate.hashCode());
+		result = prime * result + ((end == null) ? 0 : end.hashCode());
 		result = prime * result
 				+ ((metricId == null) ? 0 : metricId.hashCode());
 		result = prime * result
 				+ ((packageId == null) ? 0 : packageId.hashCode());
 		result = prime * result
-				+ ((startDate == null) ? 0 : startDate.hashCode());
+				+ ((start == null) ? 0 : start.hashCode());
 		result = prime * result + ((value == null) ? 0 : value.hashCode());
 		return result;
 	}
@@ -101,10 +101,10 @@ public class PackageMetric extends Metric {
 		if (getClass() != obj.getClass())
 			return false;
 		PackageMetric other = (PackageMetric) obj;
-		if (endDate == null) {
-			if (other.endDate != null)
+		if (end == null) {
+			if (other.end != null)
 				return false;
-		} else if (!endDate.equals(other.endDate))
+		} else if (!end.equals(other.end))
 			return false;
 		if (metricId == null) {
 			if (other.metricId != null)
@@ -116,10 +116,10 @@ public class PackageMetric extends Metric {
 				return false;
 		} else if (!packageId.equals(other.packageId))
 			return false;
-		if (startDate == null) {
-			if (other.startDate != null)
+		if (start == null) {
+			if (other.start != null)
 				return false;
-		} else if (!startDate.equals(other.startDate))
+		} else if (!start.equals(other.start))
 			return false;
 		if (value == null) {
 			if (other.value != null)
