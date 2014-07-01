@@ -30,6 +30,7 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 		store.setDefault(PreferenceConstants.PERIOD, 3);
 		store.setDefault(PreferenceConstants.INTERVAL, "MONTH");
 		store.setDefault(PreferenceConstants.ECC_MODALITY, "time");
+		store.setDefault(PreferenceConstants.ECC_MODIFICATION_LIMIT, 100);
 	}
 
 }
