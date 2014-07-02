@@ -44,24 +44,24 @@ public class PreferencePage extends FieldEditorPreferencePage implements
 		addField(new StringFieldEditor(PreferenceConstants.P_DBPASS,
 				"What is the &password of the dbms user?",
 				getFieldEditorParent()));
-		addField(new StringFieldEditor(PreferenceConstants.S_BCC,
+		addField(new StringFieldEditor(PreferenceConstants.PERIOD_START,
 				"Period start date", getFieldEditorParent()));
-		addField(new StringFieldEditor(PreferenceConstants.E_BCC,
+		addField(new StringFieldEditor(PreferenceConstants.PERIOD_END,
 				"Period end date", getFieldEditorParent()));
 		;
-		addField(new StringFieldEditor(PreferenceConstants.PERIOD,
+		addField(new StringFieldEditor(PreferenceConstants.PERIOD_LENGTH,
 				"Period lenght", getFieldEditorParent()));
-		addField(new RadioGroupFieldEditor(PreferenceConstants.INTERVAL,
+		addField(new RadioGroupFieldEditor(PreferenceConstants.PERIOD_TYPE,
 				"Period unit", 1, new String[][] {
 						{ "Weeks", "WEEK" }, { "Months", "MONTH" },
 						{ "Years", "YEAR" } }, getFieldEditorParent()));
-		addField(new RadioGroupFieldEditor(PreferenceConstants.ECC_MODALITY,
+		addField(new RadioGroupFieldEditor(PreferenceConstants.ECCM_MODALITY,
 				"Select the modality you want to use to calculate ECCM metric",
 				1, new String[][] { { "Time based period", "time" },
 						{ "Modification limit based period", "modification" },
 						{ "Burst based period", "burst" } },
 				getFieldEditorParent()));
-		addField(new IntegerFieldEditor(PreferenceConstants.ECC_MODIFICATION_LIMIT,
+		addField(new IntegerFieldEditor(PreferenceConstants.ECCM_MODIFICATION_LIMIT,
 				"Modification limit (used when Modification limit based period is selected)", getFieldEditorParent()));
 	}
 

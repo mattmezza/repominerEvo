@@ -11,13 +11,12 @@ public class PreferenceConstants {
 	public static final String P_DBUSER = "dbUser";
 	public static final String P_DBPASS = "dbPass";
 	
-	public static final String S_BCC = "bccStart";
-	public static final String E_BCC = "bccEnd";
+	public static final String PERIOD_START = "periodStart";
+	public static final String PERIOD_END = "periodEnd";
 	
-	public static final String PERIOD = "period";
-	public static final String INTERVAL = "interval";
-	public static final String ECC_MODALITY = "eccModality";
-	public static final String ECC_MODIFICATION_LIMIT = "eccModificationLimit";
-			
-
+	public static final String PERIOD_LENGTH = "periodLength";
+	public static final String PERIOD_TYPE = "periodType";
+	public static final String ECCM_MODALITY = "eccmModality";
+	public static final String ECCM_MODIFICATION_LIMIT = "eccmModificationLimit";
+	
 }

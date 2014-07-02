@@ -40,34 +40,34 @@ public class ChangeDAO {
 		return change;
 	}
 
-//	/**
-//	 * This method return all commit occurred in project passed as parameter,
-//	 * filled by the start and the end date specified in History Metric
-//	 * Calculator preference panel
-//	 * 
-//	 * @param pProject
-//	 * @return A list of Change objects
-//	 */
-//	public List<Change> getChangesByDateInPreferences(Project pProject) {
-//		IPreferenceStore store = Activator.getDefault().getPreferenceStore();
-//		String startDate = store.getString("bccStart");
-//		String endDate = store.getString("bccEnd");
-//
-//		Connection connection = ConnectionPool.getInstance().getConnection();
-//		EntityManager em = EntityManager.getInstance(connection);
-//		List<Change> changes = em.find(Change.class,
-//				"where project=? and commit_date between ? and ?",
-//				pProject.getId(), startDate, endDate);
-//		ConnectionPool.getInstance().releaseConnection(connection);
-//		return changes;
-//	}
+	// /**
+	// * This method return all commit occurred in project passed as parameter,
+	// * filled by the start and the end date specified in History Metric
+	// * Calculator preference panel
+	// *
+	// * @param pProject
+	// * @return A list of Change objects
+	// */
+	// public List<Change> getChangesByDateInPreferences(Project pProject) {
+	// IPreferenceStore store = Activator.getDefault().getPreferenceStore();
+	// String startDate = store.getString("bccStart");
+	// String endDate = store.getString("bccEnd");
+	//
+	// Connection connection = ConnectionPool.getInstance().getConnection();
+	// EntityManager em = EntityManager.getInstance(connection);
+	// List<Change> changes = em.find(Change.class,
+	// "where project=? and commit_date between ? and ?",
+	// pProject.getId(), startDate, endDate);
+	// ConnectionPool.getInstance().releaseConnection(connection);
+	// return changes;
+	// }
 
 	/**
 	 * This method return all commit occurred between two given dates in project
 	 * passed as parameter
 	 * 
 	 * @param pProject
-	 * @param pDate1 
+	 * @param pDate1
 	 * @param pDate2
 	 * @return A list of Change objects
 	 */

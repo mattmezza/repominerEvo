@@ -13,8 +13,8 @@ public class Metric {
 	@Column(name = "description")
 	private String description;
 
-	public static final String BCC_DESCRIPTION="System entropy calculated by the Basic Code Change Model";
-	public static final String BCC_NAME="BCC_Model";
+	public static final String BCCM_DESCRIPTION="System entropy calculated by the Basic Code Change Model";
+	public static final String BCCM_NAME="BCC_Model";
 	public static final String NAUTH_NAME = "NAUTH";
 	public static final String NAUTH_DESCRIPTION = "Number of authors of changes made on a package";
 	public static final String REVISION_NAME = "NR";
@@ -35,6 +35,8 @@ public class Metric {
 	public static final String MAX_LINES_DESCRIPTION = "Maximum number of insertions or deletions made on the files of a package";
 	public static final String ECC_NAME = "ECC_Model";
 	public static final String ECC_DESCRIPTION = "System entropy calculated by the Extended Code Change Model";
+	public static final String NUM_REVISION_NAME = "Num_Rev";
+	public static final String NUM_REVISION_DESCRIPTION = "Number of revision of the system";
 	
 	public Metric(Integer id, String name, String description) {
 		this.id = id;

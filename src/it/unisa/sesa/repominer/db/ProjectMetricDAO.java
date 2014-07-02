@@ -8,8 +8,8 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
+import net.sf.jeasyorm.BasicEntityManager;
 import net.sf.jeasyorm.EntityManager;
-import net.sf.jeasyorm.RuntimeSQLException;
 
 public class ProjectMetricDAO {
 
@@ -84,24 +84,24 @@ public class ProjectMetricDAO {
 				em.insert(pProjectMetric);
 			} else {
 				pProjectMetric.setMetricId(metric.getId());
-				em.delete(pProjectMetric);
+				BasicEntityManager bem = (BasicEntityManager) em;
+				bem.execute(
+						"delete from project_metrics where project=? and metric=? and start=? and end=?",
+						pProjectMetric.getProjectId(),
+						pProjectMetric.getMetricId(),
+						pProjectMetric.getStart(), pProjectMetric.getEnd());
 				em.insert(pProjectMetric);
 
 			}
 			connection.commit();
-		} catch (RuntimeSQLException e) {
-			e.printStackTrace();
+			connection.setAutoCommit(true);
 		} catch (SQLException e) {
 			try {
 				connection.rollback();
+				connection.setAutoCommit(true);
 			} catch (SQLException e1) {
 				e1.printStackTrace();
 			}
-			e.printStackTrace();
-		}
-		try {
-			connection.setAutoCommit(true);
-		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 		ConnectionPool.getInstance().releaseConnection(connection);

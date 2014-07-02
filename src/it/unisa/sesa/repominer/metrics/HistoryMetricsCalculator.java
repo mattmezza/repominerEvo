@@ -1,17 +1,22 @@
 package it.unisa.sesa.repominer.metrics;
 
+import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
 
+import org.eclipse.jface.preference.IPreferenceStore;
+
+import it.unisa.sesa.repominer.Activator;
 import it.unisa.sesa.repominer.db.ChangeDAO;
 import it.unisa.sesa.repominer.db.PackageMetricDAO;
 import it.unisa.sesa.repominer.db.ProjectDAO;
 import it.unisa.sesa.repominer.db.ProjectMetricDAO;
-import it.unisa.sesa.repominer.db.entities.Metric;
 import it.unisa.sesa.repominer.db.entities.PackageMetric;
 import it.unisa.sesa.repominer.db.entities.Project;
 import it.unisa.sesa.repominer.db.entities.ProjectMetric;
 import it.unisa.sesa.repominer.db.entities.SourceContainer;
+import it.unisa.sesa.repominer.preferences.PreferenceConstants;
+import it.unisa.sesa.repominer.util.Utils;
 
 public class HistoryMetricsCalculator {
 
@@ -23,15 +28,46 @@ public class HistoryMetricsCalculator {
 	public static void calculateMetrics(Project pProject) {
 		ProjectMetricDAO projecMetricDAO = new ProjectMetricDAO();
 		ProjectMetrics projectMetrics = new ProjectMetrics();
-		int NR = projectMetrics.getNumberOfRevision(pProject);
 
-		ProjectMetric nrMetric = new ProjectMetric();
-		nrMetric.setName("NR");
-		nrMetric.setDescription("Number of revision of the system");
-		nrMetric.setValue(new Double(NR));
-		nrMetric.setProjectId(pProject.getId());
+		ProjectMetric nrMetric = projectMetrics.getNumberOfRevision(pProject);
 		projecMetricDAO.saveMetric(nrMetric);
-		System.out.println("Metric NR: " + NR + " correctly saved into db");
+		System.out.println("Metric NR: " + nrMetric.getValue() + " correctly saved into db");
+
+		IPreferenceStore store = Activator.getDefault().getPreferenceStore();
+		Date periodStart = null;
+		Date periodEnd = null;
+		try {
+			periodStart = Utils.stringToDate(store
+					.getString(PreferenceConstants.PERIOD_START));
+			periodEnd = Utils.stringToDate(store
+					.getString(PreferenceConstants.PERIOD_END));
+		} catch (ParseException e) {
+			System.err.println("Aborting BCCM and ECCM calculation: invalid value for period start/end field into preferences page.");
+			return;
+		}
+		
+		int periodLength = store.getInt(PreferenceConstants.PERIOD_LENGTH);
+		String periodType = store.getString(PreferenceConstants.PERIOD_TYPE);
+
+		ProjectMetric bcc = projectMetrics.getBCCMMetric(pProject, periodStart,
+				periodEnd);
+		projecMetricDAO.saveMetric(bcc);
+		System.out.println("Metric Basic Code Change Model: " + bcc.getValue()
+				+ " correctly saved into db");
+
+		List<ProjectMetric> bbcPeriods = projectMetrics.getBCCPeriodBased(
+				pProject, periodLength, periodType);
+		int index = 1;
+		for (ProjectMetric singleBCCM : bbcPeriods) {
+			projecMetricDAO.saveMetric(singleBCCM);
+			System.out
+					.println("Metric Basic Code Change Model calculate for period no. "
+							+ index
+							+ ": "
+							+ singleBCCM.getValue()
+							+ " correctly saved into db");
+			index++;
+		}
 	}
 
 	/**
@@ -61,7 +97,7 @@ public class HistoryMetricsCalculator {
 		System.out.println("Metric NAUTH: " + NAUTH
 				+ " correctly saved into db");
 
-		float changeSetSize = packageMetrics
+		double changeSetSize = packageMetrics
 				.getMeanDimensionOfModifiedFiles(pSourceContainer);
 
 		PackageMetric meanChangeSetSize = new PackageMetric();
@@ -76,7 +112,7 @@ public class HistoryMetricsCalculator {
 		System.out.println("Metric mean_CHANGE_SET_SIZE: " + changeSetSize
 				+ " correctly saved into db");
 
-		float mean_NCHANGE_value = packageMetrics
+		double mean_NCHANGE_value = packageMetrics
 				.getMeanNumberOfChange(pSourceContainer);
 
 		PackageMetric meanNChange = new PackageMetric();
@@ -91,7 +127,7 @@ public class HistoryMetricsCalculator {
 		System.out.println("Metric mean_NCHANGE: " + mean_NCHANGE_value
 				+ " correctly saved into db");
 
-		float mean_NREF_value = packageMetrics
+		double mean_NREF_value = packageMetrics
 				.getMeanNumberOfChangeForRefactoring(pSourceContainer);
 
 		PackageMetric meanNRefMetric = new PackageMetric();
@@ -106,7 +142,7 @@ public class HistoryMetricsCalculator {
 		System.out.println("Metric mean_NREF: " + mean_NREF_value
 				+ " correctly saved into db");
 
-		float mean_NFIX_value = packageMetrics
+		double mean_NFIX_value = packageMetrics
 				.getMeanNumberOfChangeForBugFix(pSourceContainer);
 
 		PackageMetric meanNFixMetric = new PackageMetric();
@@ -162,31 +198,6 @@ public class HistoryMetricsCalculator {
 		packageMetricDAO.saveMetric(maxInsertionsMetric);
 		System.out.println("Metric Max_LINES: " + max
 				+ " correctly saved into db");
-
-		PackageMetric bcc = packageMetrics.getBCCMetric(pSourceContainer);
-		bcc.setDescription(Metric.BCC_DESCRIPTION);
-		bcc.setName(Metric.BCC_NAME);
-		bcc.setPackageId(pSourceContainer.getId());
-		packageMetricDAO.saveMetric(bcc);
-		System.out.println("Metric Basic Code Change Model: " + bcc.getValue()
-				+ " correctly saved into db");
-
-		List<PackageMetric> bbcPeriods = packageMetrics
-				.getBCCPeriodBased(pSourceContainer);
-		int index = 1;
-		for (PackageMetric singleBCC : bbcPeriods) {
-			singleBCC.setDescription(Metric.BCC_DESCRIPTION);
-			singleBCC.setName(Metric.BCC_NAME);
-			singleBCC.setPackageId(pSourceContainer.getId());
-			packageMetricDAO.saveMetric(singleBCC);
-			System.out
-					.println("Metric Basic Code Change Model calculate for period no. "
-							+ index
-							+ ": "
-							+ singleBCC.getValue()
-							+ " correctly saved into db");
-			index++;
-		}
 
 	}
 }

@@ -38,4 +38,5 @@ public class TypeDAO {
 		ConnectionPool.getInstance().releaseConnection(connection);
 		return type;
 	}
+
 }

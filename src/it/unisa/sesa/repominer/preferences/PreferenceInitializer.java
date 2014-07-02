@@ -25,12 +25,12 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 		store.setDefault(PreferenceConstants.P_DBPASS, "root");
 		store.setDefault(PreferenceConstants.P_DBPORT, 3306);
 		
-		store.setDefault(PreferenceConstants.S_BCC, "2000/01/01");
-		store.setDefault(PreferenceConstants.E_BCC, "2020/12/31");
-		store.setDefault(PreferenceConstants.PERIOD, 3);
-		store.setDefault(PreferenceConstants.INTERVAL, "MONTH");
-		store.setDefault(PreferenceConstants.ECC_MODALITY, "time");
-		store.setDefault(PreferenceConstants.ECC_MODIFICATION_LIMIT, 100);
+		store.setDefault(PreferenceConstants.PERIOD_START, "2000/01/01");
+		store.setDefault(PreferenceConstants.PERIOD_END, "2020/12/31");
+		store.setDefault(PreferenceConstants.PERIOD_LENGTH, 3);
+		store.setDefault(PreferenceConstants.PERIOD_TYPE, "MONTH");
+		store.setDefault(PreferenceConstants.ECCM_MODALITY, "time");
+		store.setDefault(PreferenceConstants.ECCM_MODIFICATION_LIMIT, 100);
 	}
 
 }
