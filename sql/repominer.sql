@@ -7,7 +7,7 @@
 #
 # Host: 127.0.0.1 (MySQL 5.6.13)
 # Database: repominer
-# Generation Time: 2014-07-01 09:47:39 +0000
+# Generation Time: 2014-07-02 12:17:29 +0000
 # ************************************************************
 
 
@@ -417,9 +417,10 @@ CREATE TABLE `project_metrics` (
   `project` int(11) NOT NULL,
   `metric` int(11) NOT NULL,
   `value` double NOT NULL,
-  PRIMARY KEY (`project`,`metric`),
+  `start` date NOT NULL,
+  `end` date NOT NULL,
+  PRIMARY KEY (`project`,`metric`,`start`,`end`),
   KEY `project_metrics_ibfk_2` (`metric`),
-  CONSTRAINT `project_metrics_ibfk_1` FOREIGN KEY (`project`) REFERENCES `projects` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `project_metrics_ibfk_2` FOREIGN KEY (`metric`) REFERENCES `metrics` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
