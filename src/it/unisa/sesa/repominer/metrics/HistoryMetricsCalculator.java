@@ -217,5 +217,6 @@ public class HistoryMetricsCalculator {
 			index2++;
 		}
 
+		packageMetrics.getECCBurstBased(pSourceContainer);
 	}
 }

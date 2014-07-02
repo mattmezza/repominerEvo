@@ -10,6 +10,9 @@ import it.unisa.sesa.repominer.db.entities.PackageMetric;
 import it.unisa.sesa.repominer.db.entities.Project;
 import it.unisa.sesa.repominer.db.entities.SourceContainer;
 import it.unisa.sesa.repominer.db.entities.Type;
+import it.unisa.sesa.repominer.dbscan.ChangePoint;
+import it.unisa.sesa.repominer.dbscan.Cluster;
+import it.unisa.sesa.repominer.dbscan.DBSCAB;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -508,7 +511,54 @@ public class PackageMetrics {
 		if (pMode.equals("time")) {
 			return this.getECCPeriodBased(pSourceContainer, pPeriod, pInterval);
 		}
+//		if (pMode.equals("burst")) {
+//			return this.getECCBurstBased(pSourceContainer);
+//		}
 		return null;
+	}
+
+	/* BURST ********************************************** */
+	public List<PackageMetric> getECCBurstBased(
+			SourceContainer pSourceContainer) {
+		Project project = new ProjectDAO().getProject(pSourceContainer
+				.getProjectId());
+		//Prendiamo tutti i cambiamenti del progetto
+		List<Change> projectChanges = new ChangeDAO().getChangesOfProject(project);
+		Calendar startDate = this.DateToCalendar(projectChanges.get(0).getCommitDate()); //Date calendar
+		
+		List<ChangePoint> changePoints = new ArrayList<>();
+		for (Change change : projectChanges) {
+			//iteriamo i cambiamenti e creiamo i ChagePoint
+			int xCoordinate = this.daysBetween(startDate, this.DateToCalendar(change.getCommitDate()));
+			changePoints.add(new ChangePoint(xCoordinate, change));
+		}
+		//DBSCAN return a list of Cluster
+		//Each cluster contains a Change objects
+		//5-5 means = at least 5 changes in 5 days to have a burst period
+		DBSCAB clusterizator = new DBSCAB(5,5); 		
+		List<Cluster> clusters = clusterizator.cluster(changePoints);
+		int i= 1;
+		System.out.println("Here I am");
+		for (Cluster cluster : clusters) {
+			System.out.println("Cluster no . " +i);
+			List<ChangePoint> clusterPoint = cluster.getPoints();
+			for (ChangePoint changePoint : clusterPoint) {
+				System.out.println("Commit date of cluster point : " + changePoint.getChange().getCommitDate());
+			}
+			i++;
+
+		}
+		return null;
+	}
+
+	public int daysBetween(Calendar startDate, Calendar endDate) {
+		Calendar date = (Calendar) startDate.clone();
+		int daysBetween = 0;
+		while (date.before(endDate)) {
+			date.add(Calendar.DAY_OF_MONTH, 1);
+			daysBetween++;
+		}
+		return daysBetween;
 	}
 
 	private List<PackageMetric> getECCPeriodBased(

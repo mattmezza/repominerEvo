@@ -12,6 +12,11 @@ public class DBSCAB {
 	/* Minimum number of points needed for a cluster */
 	private int minPoints;
 
+	public DBSCAB(double eps, int minPoints) {
+		this.eps = eps;
+		this.minPoints = minPoints;
+	}
+
 	/**
 	 * Return the eps value (maximum radius of the neighborhood to be
 	 * considered)
@@ -51,10 +56,16 @@ public class DBSCAB {
 				/* Prendiamo lista dei vicini */
 				List<ChangePoint> neighbors = getNeighbors(point, pPoints);
 
+//				System.out.println("Neightbor of point : " + point.getX());
+//				for (ChangePoint changePoint : neighbors) {
+//					System.out.println(changePoint.getX());
+//				}
+//				System.out.println("******************");
 				if (neighbors.size() < minPoints) {
 					// classificato come rumore
 					point.setNoise();
 				} else {
+					System.out.println("Sono nell'else!!");
 					// crea un nuovo cluster e espandilo
 					Cluster cluster = new Cluster(null); // DBSCAN doesn't care
 															// center
@@ -76,12 +87,16 @@ public class DBSCAB {
 
 		// scorriamo tutti i punti del vicinato
 		for (ChangePoint neighborsPoint : neighbors) {
+			System.out.println(neighborsPoint.isNotVisited());
 			if (neighborsPoint.isNotVisited()) {
-				neighborsPoint.setAlreadyInACluster();
+//				neighborsPoint.setAlreadyInACluster();
+				System.out.println("Sono nel ciclo");
 				List<ChangePoint> currentNeighbors = getNeighbors(
 						neighborsPoint, points);
 				// mergiamo currentNeighbors e neighbors senza ripetizioni
-				neighbors = this.merge(neighbors, currentNeighbors);
+				if (currentNeighbors.size() >= this.minPoints) {
+					neighbors = this.merge(neighbors, currentNeighbors);
+				}
 			}
 
 			if (!neighborsPoint.isAlreadyInACluster()) {
@@ -104,13 +119,12 @@ public class DBSCAB {
 	private List<ChangePoint> getNeighbors(ChangePoint pPoint,
 			List<ChangePoint> points) {
 		List<ChangePoint> neighbors = new ArrayList<>();
-		for (ChangePoint changePoint : neighbors) {
-			if (pPoint != changePoint
-					&& changePoint.distanceFrom(pPoint) <= this.eps) {
+		for (ChangePoint changePoint : points) {
+			if (changePoint.distanceFrom(pPoint) <= this.eps) {
 				neighbors.add(changePoint);
 			}
 		}
-		neighbors.add(pPoint);
+//		neighbors.add(pPoint);
 		return neighbors;
 	}
 
