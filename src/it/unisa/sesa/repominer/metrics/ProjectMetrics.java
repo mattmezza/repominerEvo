@@ -95,7 +95,7 @@ public class ProjectMetrics {
 			return 0.0;
 		}
 
-		int allFI = 0;
+		int FIcounter = 0;
 		for (Type modifiedFile : modifiedClassForProject) {
 			int aux = 0; // counter for occurrence table
 			for (Change change : changes) {
@@ -119,13 +119,13 @@ public class ProjectMetrics {
 						aux += 1;
 						occurrenceTable.put(modifiedFile.getSrcFileLocation(),
 								aux);
-						allFI += 1;
+						FIcounter += 1;
 					}
 				}
 			}
 		}
 
-		if (occurrenceTable.size() == 0 || allFI == 0) {
+		if (occurrenceTable.size() == 0 || FIcounter == 0) {
 			return .0;
 		}
 
@@ -134,7 +134,7 @@ public class ProjectMetrics {
 		int index = 0;
 		// Iterating over occurrenceTable values
 		for (Integer occurenceValue : occurrenceTable.values()) {
-			probabilty[index] = occurenceValue / allFI;
+			probabilty[index] = occurenceValue / (double)FIcounter;
 			index++;
 		}
 
