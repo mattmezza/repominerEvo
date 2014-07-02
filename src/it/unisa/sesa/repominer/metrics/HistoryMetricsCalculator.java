@@ -16,6 +16,8 @@ import it.unisa.sesa.repominer.db.entities.Project;
 import it.unisa.sesa.repominer.db.entities.ProjectMetric;
 import it.unisa.sesa.repominer.db.entities.SourceContainer;
 import it.unisa.sesa.repominer.preferences.PreferenceConstants;
+import it.unisa.sesa.repominer.preferences.Preferences;
+import it.unisa.sesa.repominer.preferences.exceptions.IntegerPreferenceException;
 import it.unisa.sesa.repominer.util.Utils;
 
 public class HistoryMetricsCalculator {
@@ -31,43 +33,45 @@ public class HistoryMetricsCalculator {
 
 		ProjectMetric nrMetric = projectMetrics.getNumberOfRevision(pProject);
 		projecMetricDAO.saveMetric(nrMetric);
-		System.out.println("Metric NR: " + nrMetric.getValue() + " correctly saved into db");
+		System.out.println("Metric NR: " + nrMetric.getValue()
+				+ " correctly saved into db");
 
-		IPreferenceStore store = Activator.getDefault().getPreferenceStore();
 		Date periodStart = null;
 		Date periodEnd = null;
 		try {
-			periodStart = Utils.stringToDate(store
-					.getString(PreferenceConstants.PERIOD_START));
-			periodEnd = Utils.stringToDate(store
-					.getString(PreferenceConstants.PERIOD_END));
+			periodStart = Preferences.getPeriodStartingDate();
+			periodEnd = Preferences.getPeriodEndingDate();
+			ProjectMetric bcc = projectMetrics.getBCCMMetric(pProject,
+					periodStart, periodEnd);
+			projecMetricDAO.saveMetric(bcc);
+			System.out.println("Metric Basic Code Change Model: "
+					+ bcc.getValue() + " correctly saved into db");
 		} catch (ParseException e) {
-			System.err.println("Aborting BCCM and ECCM calculation: invalid value for period start/end field into preferences page.");
-			return;
+			System.err
+					.println("BCCM: invalid value for period start/end field into preferences page.");
 		}
-		
-		int periodLength = store.getInt(PreferenceConstants.PERIOD_LENGTH);
-		String periodType = store.getString(PreferenceConstants.PERIOD_TYPE);
 
-		ProjectMetric bcc = projectMetrics.getBCCMMetric(pProject, periodStart,
-				periodEnd);
-		projecMetricDAO.saveMetric(bcc);
-		System.out.println("Metric Basic Code Change Model: " + bcc.getValue()
-				+ " correctly saved into db");
+		try {
 
-		List<ProjectMetric> bbcPeriods = projectMetrics.getBCCPeriodBased(
-				pProject, periodLength, periodType);
-		int index = 1;
-		for (ProjectMetric singleBCCM : bbcPeriods) {
-			projecMetricDAO.saveMetric(singleBCCM);
-			System.out
-					.println("Metric Basic Code Change Model calculate for period no. "
-							+ index
-							+ ": "
-							+ singleBCCM.getValue()
-							+ " correctly saved into db");
-			index++;
+			int periodLength = Preferences.getPeriodLength();
+			String periodType = Preferences.getPeriodType();
+			List<ProjectMetric> bbcPeriods = projectMetrics.getBCCPeriodBased(
+					pProject, periodLength, periodType);
+			int index = 1;
+			for (ProjectMetric singleBCCM : bbcPeriods) {
+				projecMetricDAO.saveMetric(singleBCCM);
+				System.out
+						.println("Metric Basic Code Change Model calculate for period no. "
+								+ index
+								+ ": "
+								+ singleBCCM.getValue()
+								+ " correctly saved into db");
+				index++;
+			}
+		} catch (IntegerPreferenceException ex) {
+			System.err.println(ex.getMessage());
 		}
+
 	}
 
 	/**

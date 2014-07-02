@@ -49,7 +49,7 @@ public class PreferencePage extends FieldEditorPreferencePage implements
 		addField(new StringFieldEditor(PreferenceConstants.PERIOD_END,
 				"Period end date", getFieldEditorParent()));
 		;
-		addField(new StringFieldEditor(PreferenceConstants.PERIOD_LENGTH,
+		addField(new IntegerFieldEditor(PreferenceConstants.PERIOD_LENGTH,
 				"Period lenght", getFieldEditorParent()));
 		addField(new RadioGroupFieldEditor(PreferenceConstants.PERIOD_TYPE,
 				"Period unit", 1, new String[][] {
