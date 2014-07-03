@@ -31,6 +31,9 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 		store.setDefault(PreferenceConstants.PERIOD_TYPE, "MONTH");
 		store.setDefault(PreferenceConstants.ECCM_MODALITY, "time");
 		store.setDefault(PreferenceConstants.ECCM_MODIFICATION_LIMIT, 100);
+		
+		store.setDefault(PreferenceConstants.BURST_EPS, 5);
+		store.setDefault(PreferenceConstants.BURST_MINPOINTS, 5);
 	}
 
 }
