@@ -402,7 +402,7 @@ public class ProjectMetrics {
 		}
 
 		if (occurrenceTable.size() == 0 || FIcounter == 0) {
-			return 0f;
+			return 0.0;
 		}
 
 		double[] probabilty = new double[occurrenceTable.size()];
