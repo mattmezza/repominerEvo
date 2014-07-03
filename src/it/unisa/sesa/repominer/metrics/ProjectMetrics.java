@@ -397,7 +397,7 @@ public class ProjectMetrics {
 			Change change = i.next();
 			if(counter==pLimit || !i.hasNext()) {
 				Date end = change.getCommitDate();
-				double value = this.getECCForPeriod(pProject, start, end, pIsStatic);
+				double value = this.calculateECCMValue(pProject, start, end, pIsStatic);
 				ProjectMetric eccmMetric = new ProjectMetric();
 				if(pIsStatic) {
 					eccmMetric.setDescription(Metric.ECCM_STATIC_DESCRIPTION);
