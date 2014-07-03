@@ -135,7 +135,7 @@ public class ProjectMetrics {
 		int index = 0;
 		// Iterating over occurrenceTable values
 		for (Integer occurenceValue : occurrenceTable.values()) {
-			probabilty[index] = occurenceValue / (double)FIcounter;
+			probabilty[index] = occurenceValue / (double) FIcounter;
 			index++;
 		}
 
@@ -185,7 +185,7 @@ public class ProjectMetrics {
 			Date auxStart = startDate.getTime();
 			startDate.add(gregorianInterval, periodLength);
 			Date auxEnd = startDate.getTime();
-			if(startDate.getTime().after(endDate)) {
+			if (startDate.getTime().after(endDate)) {
 				auxEnd = endDate;
 			}
 			double bccValue = this.calculateBCCMMetricValue(pProject, auxStart,
@@ -239,6 +239,126 @@ public class ProjectMetrics {
 			}
 		}
 		return modifiedClassesForProject;
+	}
+	
+	public List<ProjectMetric> getECCPeriodBased(
+			Project pProject, int pPeriod, String periodType) {
+		
+		int gregorianInterval = 0;
+
+		if (periodType.equals("WEEK")) {
+			gregorianInterval = GregorianCalendar.WEEK_OF_YEAR;
+		} else if (periodType.equals("YEAR")) {
+			gregorianInterval = GregorianCalendar.YEAR;
+		} else if (periodType.equals("MONTH")) {
+			gregorianInterval = GregorianCalendar.MONTH;
+		}
+		
+		Calendar startDate = Utils.dateToCalendar(this.changeDAO
+				.getProjectStartDate(pProject));
+		
+		Date endDate = this.changeDAO.getProjectEndDate(pProject);
+
+		List<ProjectMetric> listECC = new ArrayList<>();
+
+		while (startDate.getTime().before(endDate)) {
+			Date auxStart = startDate.getTime();
+			startDate.add(gregorianInterval, pPeriod);
+			Date auxEnd = startDate.getTime();
+			double eccValue = this.getECCForPeriod(pProject, auxStart,
+					auxEnd);
+			ProjectMetric currentEccm = new ProjectMetric();
+			currentEccm.setValue(new Double(eccValue));
+			currentEccm.setStart(auxStart);
+			currentEccm.setEnd(auxEnd);
+			currentEccm.setDescription(Metric.ECCM_DESCRIPTION);
+			currentEccm.setName(Metric.ECCM_NAME);
+			currentEccm.setProjectId(pProject.getId());
+			listECC.add(currentEccm);
+		}
+
+		return listECC;
+	}
+
+	/**
+	 * This method calculate the ECC value for package passed as parameter
+	 * considering only changes occurred between two Dates always passed as
+	 * parameters
+	 * 
+	 * @param pSourceContainer
+	 * @param pStart
+	 * @param pEnd
+	 * @return The double value for ECC Metric of this period
+	 */
+	private double getECCForPeriod(Project pProject, Date pStart, Date pEnd) {
+
+		List<Type> modifiedClassForProject = this
+				.getModifiedClassForProject(pProject);
+		Map<String, Integer> occurrenceTable = new HashMap<>();
+
+		// We use getChangesByDateInterval getting all changes occurred in
+		// selected period
+		List<Change> changes = this.changeDAO.getChangesByDateInterval(
+				pProject, pStart, pEnd);
+
+		if (changes.isEmpty()) {
+			return 0.0;
+		}
+
+		double FIcounter = 0; // Total of FI changes occurred int this period
+		for (Type modifiedFile : modifiedClassForProject) {
+			int aux = 0; // counter for occurrence table
+			for (Change change : changes) {
+
+				String changeMsg = change.getMessage();
+
+				if (Utils.msgIsBugFixing(changeMsg)
+						|| Utils.msgIsRefactoring(changeMsg)) {
+					// skip this change
+					continue;
+				}
+				// this is likely to be a FEATURE INTRODUCTION change at this
+				// point
+
+				List<ChangeForCommit> changesForCommit = this.changeForCommitDAO
+						.getChangeForCommitOfChange(change);
+
+				for (ChangeForCommit changeForCommit : changesForCommit) {
+					if (changeForCommit.getModifiedFile().equals(
+							modifiedFile.getSrcFileLocation())) {
+						aux += 1;
+						occurrenceTable.put(modifiedFile.getSrcFileLocation(),
+								aux);
+						FIcounter += 1;
+					}
+				}
+			}
+		}
+
+		if (occurrenceTable.size() == 0 || FIcounter == 0) {
+			return 0f;
+		}
+
+		double[] probabilty = new double[occurrenceTable.size()];
+
+		int index = 0;
+		// Iterating over occurrenceTable values
+		for (Integer occurenceValue : occurrenceTable.values()) {
+			probabilty[index] = occurenceValue / FIcounter;
+			index++;
+		}
+
+		double ECCMetric = 0;
+		for (int i = 0; i < probabilty.length; i++) {
+			ECCMetric += probabilty[i] * Utils.log2(probabilty[i]);
+		}
+		if (ECCMetric == 0) {
+			return 0;
+		}
+
+		ECCMetric = ECCMetric * (1 / Utils.log2(probabilty.length) * -1);
+
+		return ECCMetric;
 	}
 
 }
