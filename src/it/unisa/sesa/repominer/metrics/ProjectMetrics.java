@@ -280,6 +280,8 @@ public class ProjectMetrics {
 		return listECC;
 	}
 
+	
+	
 	/**
 	 * This method calculate the ECC value for package passed as parameter
 	 * considering only changes occurred between two Dates always passed as
