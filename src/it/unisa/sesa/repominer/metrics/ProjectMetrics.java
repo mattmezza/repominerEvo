@@ -229,8 +229,8 @@ public class ProjectMetrics {
 		Calendar startDate = Utils.dateToCalendar(this.changeDAO
 				.getProjectStartDate(pProject));
 		Date endDate = this.changeDAO.getProjectEndDate(pProject);
-
-		startDate.roll(GregorianCalendar.DAY_OF_MONTH, 1);
+		
+		startDate.roll(GregorianCalendar.DAY_OF_MONTH, -1);
 		while (startDate.getTime().before(endDate)) {
 			startDate.add(GregorianCalendar.DAY_OF_MONTH, 1);
 			Date auxStart = startDate.getTime();
