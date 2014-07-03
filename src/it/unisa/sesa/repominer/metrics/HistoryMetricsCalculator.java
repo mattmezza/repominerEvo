@@ -71,9 +71,9 @@ public class HistoryMetricsCalculator {
 			System.err.println(ex.getMessage());
 		}
 
-		try {
-			String eccmModality = Preferences.getECCMModality();
-			if (eccmModality.equals(PreferenceConstants.ECCM_TIME_VALUE)) {
+		String eccmModality = Preferences.getECCMModality();
+		if (eccmModality.equals(PreferenceConstants.ECCM_TIME_VALUE)) {
+			try {
 				int periodLength = Preferences.getPeriodLength();
 				String periodType = Preferences.getPeriodType();
 				List<ProjectMetric> staticEccPeriods = projectMetrics
@@ -82,12 +82,8 @@ public class HistoryMetricsCalculator {
 				int index = 1;
 				for (ProjectMetric projectMetric : staticEccPeriods) {
 					projecMetricDAO.saveMetric(projectMetric);
-					System.out
-							.println("Metric Extended Code Change Model calculated with Normalized Static Entropy for period no. "
-									+ index
-									+ ": "
-									+ projectMetric.getValue()
-									+ " correctly saved into db");
+					System.out.println("Normalized ECCM period #" + index
+							+ ": " + projectMetric.getValue() + " saved");
 					index++;
 				}
 
@@ -98,28 +94,44 @@ public class HistoryMetricsCalculator {
 
 				for (ProjectMetric projectMetric : adaptiveEccPeriods) {
 					projecMetricDAO.saveMetric(projectMetric);
-					System.out
-							.println("Metric Extended Code Change Model calculated with Adaptive Static Entropy for period no. "
-									+ index
-									+ ": "
-									+ projectMetric.getValue()
-									+ " correctly saved into db");
+					System.out.println("Adaptive ECCM period #" + index + ": "
+							+ projectMetric.getValue() + " saved");
+					index++;
+				}
+			} catch (IntegerPreferenceException ex) {
+				System.err.println(ex.getMessage());
+			}
+		} else if (eccmModality
+				.equals(PreferenceConstants.ECCM_MODIFICATION_VALUE)) {
+			try {
+				int modificationLimit = Preferences.getECCMModificationLimit();
+				List<ProjectMetric> staticEccPeriods = projectMetrics
+						.getECCModificationBased(pProject, modificationLimit, true);
+				int index = 1;
+				for (ProjectMetric projectMetric : staticEccPeriods) {
+					projecMetricDAO.saveMetric(projectMetric);
+					System.out.println("Normalized ECCM period #" + index
+							+ ": " + projectMetric.getValue() + " saved");
 					index++;
 				}
 
-			} else if (eccmModality
-					.equals(PreferenceConstants.ECCM_MODIFICATION_VALUE)) {
-				int modificationLimit = Preferences.getECCMModificationLimit();
+				index = 1;
+				List<ProjectMetric> adaptiveEccPeriods = projectMetrics
+						.getECCModificationBased(pProject, modificationLimit, false);
 
-				System.out.println("ECCM-modification: ");
-			} else if (eccmModality
-					.equals(PreferenceConstants.ECCM_BURST_VALUE)) {
-				// calculate clusters of changes
-				// call eccmBurstBased
-				System.out.println("ECCM-burst: ");
+				for (ProjectMetric projectMetric : adaptiveEccPeriods) {
+					projecMetricDAO.saveMetric(projectMetric);
+					System.out.println("Adaptive ECCM period #" + index + ": "
+							+ projectMetric.getValue() + " saved");
+					index++;
+				}
+			} catch (IntegerPreferenceException ex) {
+				System.err.println(ex.getMessage());
 			}
-		} catch (IntegerPreferenceException ex) {
-			System.err.println(ex.getMessage());
+		} else if (eccmModality.equals(PreferenceConstants.ECCM_BURST_VALUE)) {
+			// calculate clusters of changes
+			// call eccmBurstBased
+			System.out.println("ECCM-burst: ");
 		}
 
 	}

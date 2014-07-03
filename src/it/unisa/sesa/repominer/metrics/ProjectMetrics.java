@@ -395,7 +395,9 @@ public class ProjectMetrics {
 		}
 		while(i.hasNext()) {
 			Change change = i.next();
-			if(counter==pLimit || !i.hasNext()) {
+			Calendar next3months = Utils.dateToCalendar(start);
+			next3months.add(Calendar.MONTH, 3);
+			if(counter==pLimit || !i.hasNext() || change.getCommitDate().after(next3months.getTime())) {
 				Date end = change.getCommitDate();
 				double value = this.calculateECCMValue(pProject, start, end, pIsStatic);
 				ProjectMetric eccmMetric = new ProjectMetric();
@@ -411,6 +413,7 @@ public class ProjectMetrics {
 				eccmMetric.setValue(value);
 				eccmMetric.setProjectId(pProject.getId());
 				eccmMetrics.add(eccmMetric);
+				counter = 0;
 			}
 			counter++;
 		}
