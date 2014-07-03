@@ -26,4 +26,7 @@ public class PreferenceConstants {
 	public static final String ECCM_TIME_VALUE = "time";
 	public static final String ECCM_BURST_VALUE = "burst";
 	
+	public static final String BURST_EPS = "eps";
+	public static final String BURST_MINPOINTS = "minPoints";
+	
 }

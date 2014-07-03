@@ -50,11 +50,13 @@ public class Preferences {
 	}
 
 	public static Date getPeriodStartingDate() throws ParseException {
-		return Utils.stringToDate(STORE.getString(PreferenceConstants.PERIOD_START));
+		return Utils.stringToDate(STORE
+				.getString(PreferenceConstants.PERIOD_START));
 	}
 
 	public static Date getPeriodEndingDate() throws ParseException {
-		return Utils.stringToDate(STORE.getString(PreferenceConstants.PERIOD_END));
+		return Utils.stringToDate(STORE
+				.getString(PreferenceConstants.PERIOD_END));
 	}
 
 	public static int getPeriodLength() throws IntegerPreferenceException {
@@ -64,6 +66,25 @@ public class Preferences {
 					PreferenceConstants.PERIOD_LENGTH, length);
 		} else {
 			return length;
+		}
+	}
+
+	public static int getEpsParameter() throws IntegerPreferenceException {
+		int eps = STORE.getInt(PreferenceConstants.BURST_EPS);
+		if (eps <= 0) {
+			throw new IntegerPreferenceException(PreferenceConstants.BURST_EPS,
+					eps);
+		} else {
+			return eps;
+		}
+	}
+	
+	public static int getMinPointsParameter() throws IntegerPreferenceException{
+		int minPoints = STORE.getInt(PreferenceConstants.BURST_MINPOINTS);
+		if(minPoints<=0){
+			throw new IntegerPreferenceException(PreferenceConstants.BURST_MINPOINTS, minPoints);
+		}else{
+			return minPoints;
 		}
 	}
 

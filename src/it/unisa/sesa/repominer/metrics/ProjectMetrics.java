@@ -11,6 +11,9 @@ import it.unisa.sesa.repominer.db.entities.Project;
 import it.unisa.sesa.repominer.db.entities.ProjectMetric;
 import it.unisa.sesa.repominer.db.entities.SourceContainer;
 import it.unisa.sesa.repominer.db.entities.Type;
+import it.unisa.sesa.repominer.dbscan.ChangePoint;
+import it.unisa.sesa.repominer.dbscan.Cluster;
+import it.unisa.sesa.repominer.dbscan.DBSCAN;
 import it.unisa.sesa.repominer.preferences.PreferenceConstants;
 import it.unisa.sesa.repominer.util.Utils;
 
@@ -19,6 +22,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -45,6 +49,52 @@ public class ProjectMetrics {
 		nr.setEnd(this.changeDAO.getProjectEndDate(pProject));
 		nr.setStart(this.changeDAO.getProjectStartDate(pProject));
 		return nr;
+	}
+
+	public List<ProjectMetric> getECCBurstBased(Project pProject, int pEps,
+			int pMinPoints, boolean pIsStatic) {
+		List<Change> projectChanges = this.changeDAO
+				.getChangesOfProject(pProject);
+		Calendar startDate = Utils.dateToCalendar(projectChanges.get(0)
+				.getCommitDate());
+
+		List<ChangePoint> changePoints = new ArrayList<>();
+		for (Change change : projectChanges) {
+			int xCoordinate = Utils.daysBetween(startDate,
+					Utils.dateToCalendar(change.getCommitDate()));
+			changePoints.add(new ChangePoint(xCoordinate, change));
+		}
+
+		List<ProjectMetric> listECC = new ArrayList<>();
+
+		DBSCAN clusterizator = new DBSCAN(pEps, pMinPoints);
+		List<Cluster> clusters = clusterizator.cluster(changePoints);
+		for (Cluster cluster : clusters) {
+			List<ChangePoint> clusterPoints = cluster.getPoints();
+			Date clusterStartDate = clusterPoints.get(0).getChange()
+					.getCommitDate();
+			Date clusterEndDate = clusterPoints.get(clusterPoints.size()-1)
+					.getChange().getCommitDate();
+			double eccValue = this.calculateECCMValue(pProject,
+					clusterStartDate, clusterEndDate, pIsStatic);
+			ProjectMetric currentEccm = new ProjectMetric();
+			currentEccm.setValue(new Double(eccValue));
+			currentEccm.setStart(clusterStartDate);
+			currentEccm.setEnd(clusterEndDate);
+
+			if (pIsStatic) {
+				currentEccm.setDescription(Metric.ECCM_STATIC_DESCRIPTION);
+				currentEccm.setName(Metric.ECCM_STATIC_NAME);
+			} else {
+				currentEccm.setDescription(Metric.ECCM_DESCRIPTION);
+				currentEccm.setName(Metric.ECCM_NAME);
+			}
+
+			currentEccm.setProjectId(pProject.getId());
+			listECC.add(currentEccm);
+		}
+
+		return listECC;
 	}
 
 	/**
@@ -181,7 +231,9 @@ public class ProjectMetrics {
 				.getProjectStartDate(pProject));
 		Date endDate = this.changeDAO.getProjectEndDate(pProject);
 
+		startDate.roll(GregorianCalendar.DAY_OF_MONTH, 1);
 		while (startDate.getTime().before(endDate)) {
+			startDate.add(GregorianCalendar.DAY_OF_MONTH, 1);
 			Date auxStart = startDate.getTime();
 			startDate.add(gregorianInterval, periodLength);
 			Date auxEnd = startDate.getTime();
@@ -287,6 +339,8 @@ public class ProjectMetrics {
 		return listECC;
 	}
 
+	
+	
 	/**
 	 * This method calculate the ECC value for package passed as parameter
 	 * considering only changes occurred between two Dates always passed as

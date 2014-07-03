@@ -127,9 +127,33 @@ public class HistoryMetricsCalculator {
 				System.err.println(ex.getMessage());
 			}
 		} else if (eccmModality.equals(PreferenceConstants.ECCM_BURST_VALUE)) {
-			// calculate clusters of changes
-			// call eccmBurstBased
-			System.out.println("ECCM-burst: ");
+			try {
+				int epsValue = Preferences.getEpsParameter();
+				int minPointsValue = Preferences.getMinPointsParameter();
+				List<ProjectMetric> staticEccPeriods = projectMetrics
+						.getECCBurstBased(pProject, epsValue, minPointsValue,
+								true);
+				int index = 1;
+				for (ProjectMetric projectMetric : staticEccPeriods) {
+					projecMetricDAO.saveMetric(projectMetric);
+					System.out.println("Normalized ECCM burst period #" + index
+							+ ": " + projectMetric.getValue() + " saved");
+					index++;
+				}
+
+				index = 1;
+				List<ProjectMetric> adaptiveEccPeriods = projectMetrics
+						.getECCBurstBased(pProject, epsValue, minPointsValue,
+								false);
+				for (ProjectMetric projectMetric : adaptiveEccPeriods) {
+					projecMetricDAO.saveMetric(projectMetric);
+					System.out.println("Adaptive ECCM period #" + index + ": "
+							+ projectMetric.getValue() + " saved");
+					index++;
+				}
+			} catch (IntegerPreferenceException e) {
+				e.printStackTrace();
+			}
 		}
 
 	}

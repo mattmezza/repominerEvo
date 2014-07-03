@@ -39,6 +39,25 @@ public class Utils {
 	}
 
 	/**
+	 * This method calculates difference in days between two dates
+	 * 
+	 * @param startDate
+	 *            start date
+	 * @param endDate
+	 *            end date
+	 * @return days from start date to end date
+	 */
+	public static int daysBetween(Calendar startDate, Calendar endDate) {
+		Calendar date = (Calendar) startDate.clone();
+		int daysBetween = 0;
+		while (date.before(endDate)) {
+			date.add(Calendar.DAY_OF_MONTH, 1);
+			daysBetween++;
+		}
+		return daysBetween;
+	}
+
+	/**
 	 * This method convert an instance of Date into an instance of Calendar
 	 * 
 	 * @param pDate

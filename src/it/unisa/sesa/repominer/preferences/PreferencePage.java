@@ -63,6 +63,10 @@ public class PreferencePage extends FieldEditorPreferencePage implements
 				getFieldEditorParent()));
 		addField(new IntegerFieldEditor(PreferenceConstants.ECCM_MODIFICATION_LIMIT,
 				"Modification limit (used when Modification limit based period is selected)", getFieldEditorParent()));
+		addField(new IntegerFieldEditor(PreferenceConstants.BURST_EPS,
+				"`Eps` parameter for dbscan algorighm ", getFieldEditorParent()));
+		addField(new IntegerFieldEditor(PreferenceConstants.BURST_MINPOINTS,
+				"`MinPoints` parameter for dbscan algorithm`", getFieldEditorParent()));
 	}
 
 	/*
