@@ -312,7 +312,9 @@ public class ProjectMetrics {
 
 		List<ProjectMetric> listECC = new ArrayList<>();
 
+		startDate.roll(GregorianCalendar.DAY_OF_MONTH, -1);
 		while (startDate.getTime().before(endDate)) {
+			startDate.add(GregorianCalendar.DAY_OF_MONTH, 1);
 			Date auxStart = startDate.getTime();
 			startDate.add(gregorianInterval, pPeriod);
 			Date auxEnd = startDate.getTime();
