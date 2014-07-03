@@ -151,7 +151,7 @@ public class HistoryMetricsCalculator {
 						.getECCBurstBased(pProject, epsValue, minPointsValue,
 								false);
 				if (adaptiveEccPeriods.isEmpty()) {
-					System.err.println("ECCM: no file has changed (0.0 value)!");
+					System.err.println("ECCM: no file has changedor not burst detected (0.0 value)!");
 				}
 				for (ProjectMetric projectMetric : adaptiveEccPeriods) {
 					projecMetricDAO.saveMetric(projectMetric);
