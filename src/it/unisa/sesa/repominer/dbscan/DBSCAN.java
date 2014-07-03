@@ -5,6 +5,18 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * DBSCAN (density-based spatial clustering of applications with noise)
+ * algorithm
+ * 
+ * The DBSCAN algorithm forms clusters based on the idea of density
+ * connectivity, i.e. a point p is density connected to another point q, if
+ * there exists a chain of points p_i, with i=1...n and p_1=p and p_n=q, such
+ * that each pair p_{i+1} is directly density-reachable from p_i.
+ * 
+ * @author giograno
+ * 
+ */
 public class DBSCAN {
 	/* Maximum radius of the neighborhood to be considered */
 	private double eps;
@@ -41,33 +53,20 @@ public class DBSCAN {
 	 * 
 	 * @param pPoints
 	 *            the points to cluster
-	 * @return the list of cluster
+	 * @return the list of Cluster
 	 */
 	public List<Cluster> cluster(List<ChangePoint> pPoints) {
-		/* C (list of cluster) initialization */
 		List<Cluster> clusters = new ArrayList<>();
-		/* Map need to mapping noise or points already in a cluster */
 
-		/* Itera i punti */
 		for (ChangePoint point : pPoints) {
-			/* Scorre tutti i punti non visitati */
 			if (point.isNotVisited()) {
-
-				/* Prendiamo lista dei vicini */
+				// a point from here should be not visited
 				List<ChangePoint> neighbors = getNeighbors(point, pPoints);
 
-//				System.out.println("Neightbor of point : " + point.getX());
-//				for (ChangePoint changePoint : neighbors) {
-//					System.out.println(changePoint.getX());
-//				}
-//				System.out.println("******************");
 				if (neighbors.size() < minPoints) {
-					// classificato come rumore
 					point.setNoise();
 				} else {
-					// crea un nuovo cluster e espandilo
-					Cluster cluster = new Cluster(null); // DBSCAN doesn't care
-															// center
+					Cluster cluster = new Cluster(null);
 					clusters.add(this.expandCluster(cluster, point, neighbors,
 							pPoints));
 				}
@@ -77,20 +76,31 @@ public class DBSCAN {
 
 	}
 
+	/**
+	 * Expands the cluster to include density-reachable items
+	 * 
+	 * @param pCluster
+	 *            Cluster to expand
+	 * @param pPoint
+	 *            point to add to cluster
+	 * @param neighbors
+	 *            list of neighbors
+	 * @param points
+	 *            the data set
+	 * @return the expanded cluster
+	 */
 	private Cluster expandCluster(Cluster pCluster, ChangePoint pPoint,
 			List<ChangePoint> neighbors, List<ChangePoint> points) {
 
-		// aggiungiamo punto al cluster
 		pCluster.addPoint(pPoint);
 		pPoint.setAlreadyInACluster();
 
-		// scorriamo tutti i punti del vicinato
 		for (ChangePoint neighborsPoint : neighbors) {
 			if (neighborsPoint.isNotVisited()) {
-//				neighborsPoint.setAlreadyInACluster();
+
 				List<ChangePoint> currentNeighbors = getNeighbors(
 						neighborsPoint, points);
-				// mergiamo currentNeighbors e neighbors senza ripetizioni
+
 				if (currentNeighbors.size() >= this.minPoints) {
 					neighbors = this.merge(neighbors, currentNeighbors);
 				}
@@ -121,7 +131,6 @@ public class DBSCAN {
 				neighbors.add(changePoint);
 			}
 		}
-//		neighbors.add(pPoint);
 		return neighbors;
 	}
 
@@ -132,7 +141,7 @@ public class DBSCAN {
 	 *            first list
 	 * @param pNeighbors2
 	 *            second list
-	 * @return merged list
+	 * @return a merged list
 	 */
 	private List<ChangePoint> merge(List<ChangePoint> pNeighbors1,
 			List<ChangePoint> pNeighbors2) {
