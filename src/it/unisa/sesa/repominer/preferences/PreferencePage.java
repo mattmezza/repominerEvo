@@ -66,7 +66,7 @@ public class PreferencePage extends FieldEditorPreferencePage implements
 		addField(new IntegerFieldEditor(PreferenceConstants.BURST_EPS,
 				"`Eps` parameter for dbscan algorighm ", getFieldEditorParent()));
 		addField(new IntegerFieldEditor(PreferenceConstants.BURST_MINPOINTS,
-				"`MinPoints` parameter for dbscan algorithm`", getFieldEditorParent()));
+				"`MinPoints` parameter for dbscan algorithm", getFieldEditorParent()));
 	}
 
 	/*
