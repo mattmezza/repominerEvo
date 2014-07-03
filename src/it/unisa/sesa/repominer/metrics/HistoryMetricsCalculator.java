@@ -1,12 +1,5 @@
 package it.unisa.sesa.repominer.metrics;
 
-import java.text.ParseException;
-import java.util.Date;
-import java.util.List;
-
-import org.eclipse.jface.preference.IPreferenceStore;
-
-import it.unisa.sesa.repominer.Activator;
 import it.unisa.sesa.repominer.db.ChangeDAO;
 import it.unisa.sesa.repominer.db.PackageMetricDAO;
 import it.unisa.sesa.repominer.db.ProjectDAO;
@@ -18,7 +11,10 @@ import it.unisa.sesa.repominer.db.entities.SourceContainer;
 import it.unisa.sesa.repominer.preferences.PreferenceConstants;
 import it.unisa.sesa.repominer.preferences.Preferences;
 import it.unisa.sesa.repominer.preferences.exceptions.IntegerPreferenceException;
-import it.unisa.sesa.repominer.util.Utils;
+
+import java.text.ParseException;
+import java.util.Date;
+import java.util.List;
 
 public class HistoryMetricsCalculator {
 
@@ -106,7 +102,8 @@ public class HistoryMetricsCalculator {
 			try {
 				int modificationLimit = Preferences.getECCMModificationLimit();
 				List<ProjectMetric> staticEccPeriods = projectMetrics
-						.getECCModificationBased(pProject, modificationLimit, true);
+						.getECCModificationBased(pProject, modificationLimit,
+								true);
 				int index = 1;
 				for (ProjectMetric projectMetric : staticEccPeriods) {
 					projecMetricDAO.saveMetric(projectMetric);
@@ -117,7 +114,8 @@ public class HistoryMetricsCalculator {
 
 				index = 1;
 				List<ProjectMetric> adaptiveEccPeriods = projectMetrics
-						.getECCModificationBased(pProject, modificationLimit, false);
+						.getECCModificationBased(pProject, modificationLimit,
+								false);
 
 				for (ProjectMetric projectMetric : adaptiveEccPeriods) {
 					projecMetricDAO.saveMetric(projectMetric);

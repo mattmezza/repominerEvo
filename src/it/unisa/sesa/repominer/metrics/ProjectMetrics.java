@@ -19,7 +19,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -266,8 +265,8 @@ public class ProjectMetrics {
 			Date auxStart = startDate.getTime();
 			startDate.add(gregorianInterval, pPeriod);
 			Date auxEnd = startDate.getTime();
-			double eccValue = this.calculateECCMValue(pProject, auxStart, auxEnd,
-					pIsStatic);
+			double eccValue = this.calculateECCMValue(pProject, auxStart,
+					auxEnd, pIsStatic);
 			ProjectMetric currentEccm = new ProjectMetric();
 			currentEccm.setValue(new Double(eccValue));
 			currentEccm.setStart(auxStart);
@@ -288,8 +287,6 @@ public class ProjectMetrics {
 		return listECC;
 	}
 
-	
-	
 	/**
 	 * This method calculate the ECC value for package passed as parameter
 	 * considering only changes occurred between two Dates always passed as
@@ -380,42 +377,136 @@ public class ProjectMetrics {
 
 		return ECCMetric;
 	}
-	
-	public List<ProjectMetric> getECCModificationBased(Project pProject, int pLimit, boolean pIsStatic) {
+
+	private double calculateECCMValue(Project pProject, List<Change> changes,
+			boolean pIsStatic) {
+
+		List<Type> modifiedClassForProject = this
+				.getModifiedClassForProject(pProject);
+		Map<String, Integer> occurrenceTable = new HashMap<>();
+
+		if (changes.isEmpty()) {
+			return 0.0;
+		}
+
+		double FIcounter = 0; // Total of FI changes occurred int this period
+		for (Type modifiedFile : modifiedClassForProject) {
+			int aux = 0; // counter for occurrence table
+			for (Change change : changes) {
+
+				String changeMsg = change.getMessage();
+
+				if (Utils.msgIsBugFixing(changeMsg)
+						|| Utils.msgIsRefactoring(changeMsg)) {
+					// skip this change
+					continue;
+				}
+				// this is likely to be a FEATURE INTRODUCTION change at this
+				// point
+
+				List<ChangeForCommit> changesForCommit = this.changeForCommitDAO
+						.getChangeForCommitOfChange(change);
+
+				for (ChangeForCommit changeForCommit : changesForCommit) {
+					if (changeForCommit.getModifiedFile().equals(
+							modifiedFile.getSrcFileLocation())) {
+						aux += 1;
+						occurrenceTable.put(modifiedFile.getSrcFileLocation(),
+								aux);
+						FIcounter += 1;
+					}
+				}
+			}
+		}
+
+		if (occurrenceTable.size() == 0 || FIcounter == 0) {
+			return 0.0;
+		}
+
+		double[] probabilty = new double[occurrenceTable.size()];
+
+		int index = 0;
+		// Iterating over occurrenceTable values
+		for (Integer occurenceValue : occurrenceTable.values()) {
+			probabilty[index] = occurenceValue / FIcounter;
+			index++;
+		}
+
+		double eccmValue = 0;
+		for (int i = 0; i < probabilty.length; i++) {
+			eccmValue += probabilty[i] * Utils.log2(probabilty[i]);
+		}
+		if (eccmValue == 0) {
+			return 0;
+		}
+
+		if (pIsStatic) {
+			eccmValue = eccmValue
+					* (1 / Utils.log2(new Double(this.typeDAO
+							.getSystemNumberOfTypes(pProject))) * -1);
+		} else {
+			eccmValue = eccmValue * (1 / Utils.log2(probabilty.length) * -1);
+		}
+
+		return eccmValue;
+	}
+
+	public List<ProjectMetric> getECCModificationBased(Project pProject,
+			int pLimit, boolean pIsStatic) {
 		List<ProjectMetric> eccmMetrics = new ArrayList<>();
-		List<Change> projectChanges = this.changeDAO.getChangesOfProject(pProject);
-		Date start = null;
-		
-		int counter = 2;
-		Iterator<Change> i = projectChanges.iterator();
-		if(i.hasNext()) {
-			start = i.next().getCommitDate();
+		List<Change> projectChanges = this.changeDAO
+				.getChangesOfProject(pProject);
+
+		List<List<Change>> periods = new ArrayList<>();
+		List<Change> buffer = new ArrayList<>();
+		Date periodStart = null;
+		if (!projectChanges.isEmpty()) {
+			periodStart = projectChanges.get(0).getCommitDate();
 		} else {
 			return eccmMetrics;
 		}
-		while(i.hasNext()) {
-			Change change = i.next();
-			Calendar next3months = Utils.dateToCalendar(start);
-			next3months.add(Calendar.MONTH, 3);
-			if(counter==pLimit || !i.hasNext() || change.getCommitDate().after(next3months.getTime())) {
-				Date end = change.getCommitDate();
-				double value = this.calculateECCMValue(pProject, start, end, pIsStatic);
-				ProjectMetric eccmMetric = new ProjectMetric();
-				if(pIsStatic) {
-					eccmMetric.setDescription(Metric.ECCM_STATIC_DESCRIPTION);
-					eccmMetric.setName(Metric.ECCM_STATIC_NAME);
-				} else {
-					eccmMetric.setDescription(Metric.ECCM_DESCRIPTION);
-					eccmMetric.setName(Metric.ECCM_NAME);
+		for (int i = 0; i < projectChanges.size(); i++) {
+			Change currentChange = projectChanges.get(i);
+			buffer.add(currentChange);
+			Change nextChange = null;
+			if (i + 1 < projectChanges.size()) {
+				// current change IS NOT last change
+				nextChange = projectChanges.get(i + 1);
+				Calendar next3months = Utils.dateToCalendar(periodStart);
+				next3months.add(Calendar.MONTH, 3);
+				Date monthsLimit = next3months.getTime();
+
+				if (nextChange.getCommitDate().after(monthsLimit)
+						|| buffer.size() == pLimit) {
+					periods.add(new ArrayList<Change>(buffer));
+					buffer.clear();
+					periodStart = nextChange.getCommitDate();
 				}
-				eccmMetric.setStart(start);
-				eccmMetric.setEnd(end);
-				eccmMetric.setValue(value);
-				eccmMetric.setProjectId(pProject.getId());
-				eccmMetrics.add(eccmMetric);
-				counter = 0;
+			} else {
+				// current change is last change
+				periods.add(new ArrayList<Change>(buffer));
+				buffer.clear();
 			}
-			counter++;
+		}
+
+		for (List<Change> changes : periods) {
+
+			double eccmValue = this.calculateECCMValue(pProject, changes,
+					pIsStatic);
+			ProjectMetric projectMetric = new ProjectMetric();
+			if (pIsStatic) {
+				projectMetric.setDescription(Metric.ECCM_STATIC_DESCRIPTION);
+				projectMetric.setName(Metric.ECCM_STATIC_NAME);
+			} else {
+				projectMetric.setDescription(Metric.ECCM_DESCRIPTION);
+				projectMetric.setName(Metric.ECCM_NAME);
+			}
+			projectMetric.setValue(eccmValue);
+			projectMetric.setProjectId(pProject.getId());
+			projectMetric.setStart(changes.get(0).getCommitDate());
+			projectMetric.setEnd(changes.get(changes.size() - 1)
+					.getCommitDate());
+			eccmMetrics.add(projectMetric);
 		}
 		return eccmMetrics;
 	}
