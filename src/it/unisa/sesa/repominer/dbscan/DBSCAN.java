@@ -5,14 +5,14 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-public class DBSCAB {
+public class DBSCAN {
 	/* Maximum radius of the neighborhood to be considered */
 	private double eps;
 
 	/* Minimum number of points needed for a cluster */
 	private int minPoints;
 
-	public DBSCAB(double eps, int minPoints) {
+	public DBSCAN(double eps, int minPoints) {
 		this.eps = eps;
 		this.minPoints = minPoints;
 	}

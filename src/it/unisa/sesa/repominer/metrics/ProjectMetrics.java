@@ -11,6 +11,9 @@ import it.unisa.sesa.repominer.db.entities.Project;
 import it.unisa.sesa.repominer.db.entities.ProjectMetric;
 import it.unisa.sesa.repominer.db.entities.SourceContainer;
 import it.unisa.sesa.repominer.db.entities.Type;
+import it.unisa.sesa.repominer.dbscan.ChangePoint;
+import it.unisa.sesa.repominer.dbscan.Cluster;
+import it.unisa.sesa.repominer.dbscan.DBSCAN;
 import it.unisa.sesa.repominer.preferences.PreferenceConstants;
 import it.unisa.sesa.repominer.util.Utils;
 
@@ -46,6 +49,52 @@ public class ProjectMetrics {
 		nr.setEnd(this.changeDAO.getProjectEndDate(pProject));
 		nr.setStart(this.changeDAO.getProjectStartDate(pProject));
 		return nr;
+	}
+
+	public List<ProjectMetric> getECCBurstBased(Project pProject, int pEps,
+			int pMinPoints, boolean pIsStatic) {
+		List<Change> projectChanges = this.changeDAO
+				.getChangesOfProject(pProject);
+		Calendar startDate = Utils.dateToCalendar(projectChanges.get(0)
+				.getCommitDate());
+
+		List<ChangePoint> changePoints = new ArrayList<>();
+		for (Change change : projectChanges) {
+			int xCoordinate = Utils.daysBetween(startDate,
+					Utils.dateToCalendar(change.getCommitDate()));
+			changePoints.add(new ChangePoint(xCoordinate, change));
+		}
+
+		List<ProjectMetric> listECC = new ArrayList<>();
+
+		DBSCAN clusterizator = new DBSCAN(pEps, pMinPoints);
+		List<Cluster> clusters = clusterizator.cluster(changePoints);
+		for (Cluster cluster : clusters) {
+			List<ChangePoint> clusterPoints = cluster.getPoints();
+			Date clusterStartDate = clusterPoints.get(0).getChange()
+					.getCommitDate();
+			Date clusterEndDate = clusterPoints.get(clusterPoints.size())
+					.getChange().getCommitDate();
+			double eccValue = this.calculateECCMValue(pProject,
+					clusterStartDate, clusterEndDate, pIsStatic);
+			ProjectMetric currentEccm = new ProjectMetric();
+			currentEccm.setValue(new Double(eccValue));
+			currentEccm.setStart(clusterStartDate);
+			currentEccm.setEnd(clusterEndDate);
+
+			if (pIsStatic) {
+				currentEccm.setDescription(Metric.ECCM_STATIC_DESCRIPTION);
+				currentEccm.setName(Metric.ECCM_STATIC_NAME);
+			} else {
+				currentEccm.setDescription(Metric.ECCM_DESCRIPTION);
+				currentEccm.setName(Metric.ECCM_NAME);
+			}
+
+			currentEccm.setProjectId(pProject.getId());
+			listECC.add(currentEccm);
+		}
+
+		return listECC;
 	}
 
 	/**
@@ -268,8 +317,8 @@ public class ProjectMetrics {
 			Date auxStart = startDate.getTime();
 			startDate.add(gregorianInterval, pPeriod);
 			Date auxEnd = startDate.getTime();
-			double eccValue = this.calculateECCMValue(pProject, auxStart, auxEnd,
-					pIsStatic);
+			double eccValue = this.calculateECCMValue(pProject, auxStart,
+					auxEnd, pIsStatic);
 			ProjectMetric currentEccm = new ProjectMetric();
 			currentEccm.setValue(new Double(eccValue));
 			currentEccm.setStart(auxStart);
@@ -290,8 +339,6 @@ public class ProjectMetrics {
 		return listECC;
 	}
 
-	
-	
 	/**
 	 * This method calculate the ECC value for package passed as parameter
 	 * considering only changes occurred between two Dates always passed as
@@ -382,28 +429,32 @@ public class ProjectMetrics {
 
 		return ECCMetric;
 	}
-	
-	public List<ProjectMetric> getECCModificationBased(Project pProject, int pLimit, boolean pIsStatic) {
+
+	public List<ProjectMetric> getECCModificationBased(Project pProject,
+			int pLimit, boolean pIsStatic) {
 		List<ProjectMetric> eccmMetrics = new ArrayList<>();
-		List<Change> projectChanges = this.changeDAO.getChangesOfProject(pProject);
+		List<Change> projectChanges = this.changeDAO
+				.getChangesOfProject(pProject);
 		Date start = null;
-		
+
 		int counter = 2;
 		Iterator<Change> i = projectChanges.iterator();
-		if(i.hasNext()) {
+		if (i.hasNext()) {
 			start = i.next().getCommitDate();
 		} else {
 			return eccmMetrics;
 		}
-		while(i.hasNext()) {
+		while (i.hasNext()) {
 			Change change = i.next();
 			Calendar next3months = Utils.dateToCalendar(start);
 			next3months.add(Calendar.MONTH, 3);
-			if(counter==pLimit || !i.hasNext() || change.getCommitDate().after(next3months.getTime())) {
+			if (counter == pLimit || !i.hasNext()
+					|| change.getCommitDate().after(next3months.getTime())) {
 				Date end = change.getCommitDate();
-				double value = this.calculateECCMValue(pProject, start, end, pIsStatic);
+				double value = this.calculateECCMValue(pProject, start, end,
+						pIsStatic);
 				ProjectMetric eccmMetric = new ProjectMetric();
-				if(pIsStatic) {
+				if (pIsStatic) {
 					eccmMetric.setDescription(Metric.ECCM_STATIC_DESCRIPTION);
 					eccmMetric.setName(Metric.ECCM_STATIC_NAME);
 				} else {
