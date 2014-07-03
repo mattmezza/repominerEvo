@@ -16,7 +16,14 @@ public class PreferenceConstants {
 	
 	public static final String PERIOD_LENGTH = "periodLength";
 	public static final String PERIOD_TYPE = "periodType";
+	public static final String PERIOD_TYPE_WEEK = "WEEK";
+	public static final String PERIOD_TYPE_MONTH = "MONTH";
+	public static final String PERIOD_TYPE_YEAR = "YEAR";
 	public static final String ECCM_MODALITY = "eccmModality";
 	public static final String ECCM_MODIFICATION_LIMIT = "eccmModificationLimit";
+	
+	public static final String ECCM_MODIFICATION_VALUE = "modification";
+	public static final String ECCM_TIME_VALUE = "time";
+	public static final String ECCM_BURST_VALUE = "burst";
 	
 }

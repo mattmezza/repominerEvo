@@ -52,7 +52,6 @@ public class HistoryMetricsCalculator {
 		}
 
 		try {
-
 			int periodLength = Preferences.getPeriodLength();
 			String periodType = Preferences.getPeriodType();
 			List<ProjectMetric> bbcPeriods = projectMetrics.getBCCPeriodBased(
@@ -67,6 +66,24 @@ public class HistoryMetricsCalculator {
 								+ singleBCCM.getValue()
 								+ " correctly saved into db");
 				index++;
+			}
+		} catch (IntegerPreferenceException ex) {
+			System.err.println(ex.getMessage());
+		}
+		
+		try {
+			String eccmModality = Preferences.getECCMModality();
+			if(eccmModality.equals(PreferenceConstants.ECCM_TIME_VALUE)) {
+				
+				System.out.println("ECCM-time: ");
+			} else if(eccmModality.equals(PreferenceConstants.ECCM_MODIFICATION_VALUE)) {
+				int modificationLimit = Preferences.getECCMModificationLimit();
+				
+				System.out.println("ECCM-modification: ");
+			} else if(eccmModality.equals(PreferenceConstants.ECCM_BURST_VALUE)) {
+				// calculate clusters of changes
+				// call eccmBurstBased
+				System.out.println("ECCM-burst: ");
 			}
 		} catch (IntegerPreferenceException ex) {
 			System.err.println(ex.getMessage());

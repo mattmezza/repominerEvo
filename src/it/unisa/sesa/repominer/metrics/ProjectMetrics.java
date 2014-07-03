@@ -11,6 +11,7 @@ import it.unisa.sesa.repominer.db.entities.Project;
 import it.unisa.sesa.repominer.db.entities.ProjectMetric;
 import it.unisa.sesa.repominer.db.entities.SourceContainer;
 import it.unisa.sesa.repominer.db.entities.Type;
+import it.unisa.sesa.repominer.preferences.PreferenceConstants;
 import it.unisa.sesa.repominer.util.Utils;
 
 import java.util.ArrayList;
@@ -168,11 +169,11 @@ public class ProjectMetrics {
 
 		int gregorianInterval = 0;
 
-		if (periodType.equals("WEEK")) {
+		if (periodType.equals(PreferenceConstants.PERIOD_TYPE_WEEK)) {
 			gregorianInterval = GregorianCalendar.WEEK_OF_YEAR;
-		} else if (periodType.equals("YEAR")) {
+		} else if (periodType.equals(PreferenceConstants.PERIOD_TYPE_YEAR)) {
 			gregorianInterval = GregorianCalendar.YEAR;
-		} else if (periodType.equals("MONTH")) {
+		} else if (periodType.equals(PreferenceConstants.PERIOD_TYPE_MONTH)) {
 			gregorianInterval = GregorianCalendar.MONTH;
 		}
 

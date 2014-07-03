@@ -53,13 +53,13 @@ public class PreferencePage extends FieldEditorPreferencePage implements
 				"Period lenght", getFieldEditorParent()));
 		addField(new RadioGroupFieldEditor(PreferenceConstants.PERIOD_TYPE,
 				"Period unit", 1, new String[][] {
-						{ "Weeks", "WEEK" }, { "Months", "MONTH" },
-						{ "Years", "YEAR" } }, getFieldEditorParent()));
+						{ "Weeks", PreferenceConstants.PERIOD_TYPE_WEEK }, { "Months", PreferenceConstants.PERIOD_TYPE_MONTH },
+						{ "Years", PreferenceConstants.PERIOD_TYPE_YEAR } }, getFieldEditorParent()));
 		addField(new RadioGroupFieldEditor(PreferenceConstants.ECCM_MODALITY,
 				"Select the modality you want to use to calculate ECCM metric",
-				1, new String[][] { { "Time based period", "time" },
-						{ "Modification limit based period", "modification" },
-						{ "Burst based period", "burst" } },
+				1, new String[][] { { "Time based period", PreferenceConstants.ECCM_TIME_VALUE },
+						{ "Modification limit based period", PreferenceConstants.ECCM_MODIFICATION_VALUE },
+						{ "Burst based period", PreferenceConstants.ECCM_BURST_VALUE } },
 				getFieldEditorParent()));
 		addField(new IntegerFieldEditor(PreferenceConstants.ECCM_MODIFICATION_LIMIT,
 				"Modification limit (used when Modification limit based period is selected)", getFieldEditorParent()));
