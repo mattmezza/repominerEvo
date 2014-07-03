@@ -102,7 +102,8 @@ public class HistoryMetricsCalculator {
 			try {
 				int modificationLimit = Preferences.getECCMModificationLimit();
 				List<ProjectMetric> staticEccPeriods = projectMetrics
-						.getECCModificationBased(pProject, modificationLimit, true);
+						.getECCModificationBased(pProject, modificationLimit,
+								true);
 				int index = 1;
 				for (ProjectMetric projectMetric : staticEccPeriods) {
 					projecMetricDAO.saveMetric(projectMetric);
@@ -113,7 +114,8 @@ public class HistoryMetricsCalculator {
 
 				index = 1;
 				List<ProjectMetric> adaptiveEccPeriods = projectMetrics
-						.getECCModificationBased(pProject, modificationLimit, false);
+						.getECCModificationBased(pProject, modificationLimit,
+								false);
 
 				for (ProjectMetric projectMetric : adaptiveEccPeriods) {
 					projecMetricDAO.saveMetric(projectMetric);
@@ -128,17 +130,21 @@ public class HistoryMetricsCalculator {
 			try {
 				int epsValue = Preferences.getEpsParameter();
 				int minPointsValue = Preferences.getMinPointsParameter();
-				List<ProjectMetric> staticEccPeriods = projectMetrics.getECCBurstBased(pProject, epsValue, minPointsValue, true);
-				int index =1;
+				List<ProjectMetric> staticEccPeriods = projectMetrics
+						.getECCBurstBased(pProject, epsValue, minPointsValue,
+								true);
+				int index = 1;
 				for (ProjectMetric projectMetric : staticEccPeriods) {
 					projecMetricDAO.saveMetric(projectMetric);
 					System.out.println("Normalized ECCM burst period #" + index
 							+ ": " + projectMetric.getValue() + " saved");
 					index++;
-				} 
-				
+				}
+
 				index = 1;
-				List<ProjectMetric> adaptiveEccPeriods = projectMetrics.getECCBurstBased(pProject, epsValue, minPointsValue, false);
+				List<ProjectMetric> adaptiveEccPeriods = projectMetrics
+						.getECCBurstBased(pProject, epsValue, minPointsValue,
+								false);
 				for (ProjectMetric projectMetric : adaptiveEccPeriods) {
 					projecMetricDAO.saveMetric(projectMetric);
 					System.out.println("Adaptive ECCM period #" + index + ": "
@@ -148,8 +154,6 @@ public class HistoryMetricsCalculator {
 			} catch (IntegerPreferenceException e) {
 				e.printStackTrace();
 			}
-			
-			System.out.println("ECCM-burst: ");
 		}
 
 	}

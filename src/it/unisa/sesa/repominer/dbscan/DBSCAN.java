@@ -65,7 +65,6 @@ public class DBSCAN {
 					// classificato come rumore
 					point.setNoise();
 				} else {
-					System.out.println("Sono nell'else!!");
 					// crea un nuovo cluster e espandilo
 					Cluster cluster = new Cluster(null); // DBSCAN doesn't care
 															// center
@@ -87,10 +86,8 @@ public class DBSCAN {
 
 		// scorriamo tutti i punti del vicinato
 		for (ChangePoint neighborsPoint : neighbors) {
-			System.out.println(neighborsPoint.isNotVisited());
 			if (neighborsPoint.isNotVisited()) {
 //				neighborsPoint.setAlreadyInACluster();
-				System.out.println("Sono nel ciclo");
 				List<ChangePoint> currentNeighbors = getNeighbors(
 						neighborsPoint, points);
 				// mergiamo currentNeighbors e neighbors senza ripetizioni

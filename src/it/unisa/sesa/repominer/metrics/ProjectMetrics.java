@@ -73,7 +73,7 @@ public class ProjectMetrics {
 			List<ChangePoint> clusterPoints = cluster.getPoints();
 			Date clusterStartDate = clusterPoints.get(0).getChange()
 					.getCommitDate();
-			Date clusterEndDate = clusterPoints.get(clusterPoints.size())
+			Date clusterEndDate = clusterPoints.get(clusterPoints.size()-1)
 					.getChange().getCommitDate();
 			double eccValue = this.calculateECCMValue(pProject,
 					clusterStartDate, clusterEndDate, pIsStatic);
