@@ -20,8 +20,8 @@ public class ChangeDAO {
 	public List<Change> getChangesOfProject(Project pProject) {
 		Connection connection = ConnectionPool.getInstance().getConnection();
 		EntityManager em = EntityManager.getInstance(connection);
-		List<Change> changes = em.find(Change.class, "where project=?",
-				pProject.getId());
+		List<Change> changes = em.find(Change.class,
+				"where project=? order by commit_date ASC", pProject.getId());
 		ConnectionPool.getInstance().releaseConnection(connection);
 		return changes;
 	}

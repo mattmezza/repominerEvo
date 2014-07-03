@@ -241,10 +241,10 @@ public class ProjectMetrics {
 		}
 		return modifiedClassesForProject;
 	}
-	
-	public List<ProjectMetric> getECCPeriodBased(
-			Project pProject, int pPeriod, String periodType) {
-		
+
+	public List<ProjectMetric> getECCPeriodBased(Project pProject, int pPeriod,
+			String periodType, Boolean pIsStatic) {
+
 		int gregorianInterval = 0;
 
 		if (periodType.equals("WEEK")) {
@@ -254,10 +254,10 @@ public class ProjectMetrics {
 		} else if (periodType.equals("MONTH")) {
 			gregorianInterval = GregorianCalendar.MONTH;
 		}
-		
+
 		Calendar startDate = Utils.dateToCalendar(this.changeDAO
 				.getProjectStartDate(pProject));
-		
+
 		Date endDate = this.changeDAO.getProjectEndDate(pProject);
 
 		List<ProjectMetric> listECC = new ArrayList<>();
@@ -266,14 +266,21 @@ public class ProjectMetrics {
 			Date auxStart = startDate.getTime();
 			startDate.add(gregorianInterval, pPeriod);
 			Date auxEnd = startDate.getTime();
-			double eccValue = this.calculateECCMValue(pProject, auxStart,
-					auxEnd);
+			double eccValue = this.calculateECCMValue(pProject, auxStart, auxEnd,
+					pIsStatic);
 			ProjectMetric currentEccm = new ProjectMetric();
 			currentEccm.setValue(new Double(eccValue));
 			currentEccm.setStart(auxStart);
 			currentEccm.setEnd(auxEnd);
-			currentEccm.setDescription(Metric.ECCM_DESCRIPTION);
-			currentEccm.setName(Metric.ECCM_NAME);
+
+			if (pIsStatic) {
+				currentEccm.setDescription(Metric.ECCM_STATIC_DESCRIPTION);
+				currentEccm.setName(Metric.ECCM_STATIC_NAME);
+			} else {
+				currentEccm.setDescription(Metric.ECCM_DESCRIPTION);
+				currentEccm.setName(Metric.ECCM_NAME);
+			}
+
 			currentEccm.setProjectId(pProject.getId());
 			listECC.add(currentEccm);
 		}
@@ -291,9 +298,13 @@ public class ProjectMetrics {
 	 * @param pSourceContainer
 	 * @param pStart
 	 * @param pEnd
+	 * @param pIsStatic
+	 *            if true calculated with Normalized Static Entropy; if false
+	 *            calculated with our Adaptive Sizing Entropy
 	 * @return The double value for ECC Metric of this period
 	 */
-	private double calculateECCMValue(Project pProject, Date pStart, Date pEnd) {
+	private double calculateECCMValue(Project pProject, Date pStart, Date pEnd,
+			Boolean pIsStatic) {
 
 		List<Type> modifiedClassForProject = this
 				.getModifiedClassForProject(pProject);
@@ -359,7 +370,13 @@ public class ProjectMetrics {
 			return 0;
 		}
 
-		ECCMetric = ECCMetric * (1 / Utils.log2(probabilty.length) * -1);
+		if (pIsStatic) {
+			ECCMetric = ECCMetric
+					* (1 / Utils.log2(new Double(this.typeDAO
+							.getSystemNumberOfTypes(pProject))) * -1);
+		} else {
+			ECCMetric = ECCMetric * (1 / Utils.log2(probabilty.length) * -1);
+		}
 
 		return ECCMetric;
 	}
