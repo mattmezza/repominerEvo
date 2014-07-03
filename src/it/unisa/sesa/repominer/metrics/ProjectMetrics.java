@@ -19,6 +19,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -265,7 +266,7 @@ public class ProjectMetrics {
 			Date auxStart = startDate.getTime();
 			startDate.add(gregorianInterval, pPeriod);
 			Date auxEnd = startDate.getTime();
-			double eccValue = this.getECCForPeriod(pProject, auxStart,
+			double eccValue = this.calculateECCMValue(pProject, auxStart,
 					auxEnd);
 			ProjectMetric currentEccm = new ProjectMetric();
 			currentEccm.setValue(new Double(eccValue));
@@ -292,7 +293,7 @@ public class ProjectMetrics {
 	 * @param pEnd
 	 * @return The double value for ECC Metric of this period
 	 */
-	private double getECCForPeriod(Project pProject, Date pStart, Date pEnd) {
+	private double calculateECCMValue(Project pProject, Date pStart, Date pEnd) {
 
 		List<Type> modifiedClassForProject = this
 				.getModifiedClassForProject(pProject);
@@ -361,6 +362,42 @@ public class ProjectMetrics {
 		ECCMetric = ECCMetric * (1 / Utils.log2(probabilty.length) * -1);
 
 		return ECCMetric;
+	}
+	
+	public List<ProjectMetric> getECCModificationBased(Project pProject, int pLimit, boolean pIsStatic) {
+		List<ProjectMetric> eccmMetrics = new ArrayList<>();
+		List<Change> projectChanges = this.changeDAO.getChangesOfProject(pProject);
+		Date start = null;
+		
+		int counter = 2;
+		Iterator<Change> i = projectChanges.iterator();
+		if(i.hasNext()) {
+			start = i.next().getCommitDate();
+		} else {
+			return eccmMetrics;
+		}
+		while(i.hasNext()) {
+			Change change = i.next();
+			if(counter==pLimit || !i.hasNext()) {
+				Date end = change.getCommitDate();
+				double value = this.getECCForPeriod(pProject, start, end, pIsStatic);
+				ProjectMetric eccmMetric = new ProjectMetric();
+				if(pIsStatic) {
+					eccmMetric.setDescription(Metric.ECCM_STATIC_DESCRIPTION);
+					eccmMetric.setName(Metric.ECCM_STATIC_NAME);
+				} else {
+					eccmMetric.setDescription(Metric.ECCM_DESCRIPTION);
+					eccmMetric.setName(Metric.ECCM_NAME);
+				}
+				eccmMetric.setStart(start);
+				eccmMetric.setEnd(end);
+				eccmMetric.setValue(value);
+				eccmMetric.setProjectId(pProject.getId());
+				eccmMetrics.add(eccmMetric);
+			}
+			counter++;
+		}
+		return eccmMetrics;
 	}
 
 }

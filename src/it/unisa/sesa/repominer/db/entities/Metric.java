@@ -35,8 +35,8 @@ public class Metric {
 	public static final String MAX_LINES_DESCRIPTION = "Maximum number of insertions or deletions made on the files of a package";
 	public static final String ECCM_NAME = "ECC_Model";
 	public static final String ECCM_DESCRIPTION = "System entropy calculated by the Extended Code Change Model";
-	public static final String EECM_STATIC_DESCRIPTION = "System entropy calculated by the Extended Code Change Model using Normalized Static Entropy";
-	public static final String EECM_STATIC_NAME = "ECC_Static_Model";
+	public static final String ECCM_STATIC_DESCRIPTION = "System entropy calculated by the Extended Code Change Model using Normalized Static Entropy";
+	public static final String ECCM_STATIC_NAME = "ECC_Static_Model";
 	public static final String NUM_REVISION_NAME = "Num_Rev";
 	public static final String NUM_REVISION_DESCRIPTION = "Number of revision of the system";
 	
