@@ -182,7 +182,9 @@ public class ProjectMetrics {
 				.getProjectStartDate(pProject));
 		Date endDate = this.changeDAO.getProjectEndDate(pProject);
 
+		startDate.roll(GregorianCalendar.DAY_OF_MONTH, 1);
 		while (startDate.getTime().before(endDate)) {
+			startDate.add(GregorianCalendar.DAY_OF_MONTH, 1);
 			Date auxStart = startDate.getTime();
 			startDate.add(gregorianInterval, periodLength);
 			Date auxEnd = startDate.getTime();
