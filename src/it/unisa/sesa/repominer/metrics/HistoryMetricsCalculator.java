@@ -70,17 +70,50 @@ public class HistoryMetricsCalculator {
 		} catch (IntegerPreferenceException ex) {
 			System.err.println(ex.getMessage());
 		}
-		
+
 		try {
 			String eccmModality = Preferences.getECCMModality();
-			if(eccmModality.equals(PreferenceConstants.ECCM_TIME_VALUE)) {
-				
-				System.out.println("ECCM-time: ");
-			} else if(eccmModality.equals(PreferenceConstants.ECCM_MODIFICATION_VALUE)) {
+			if (eccmModality.equals(PreferenceConstants.ECCM_TIME_VALUE)) {
+				int periodLength = Preferences.getPeriodLength();
+				String periodType = Preferences.getPeriodType();
+				List<ProjectMetric> staticEccPeriods = projectMetrics
+						.getECCPeriodBased(pProject, periodLength, periodType,
+								true);
+				int index = 1;
+				for (ProjectMetric projectMetric : staticEccPeriods) {
+					projecMetricDAO.saveMetric(projectMetric);
+					System.out
+							.println("Metric Extended Code Change Model calculated with Normalized Static Entropy for period no. "
+									+ index
+									+ ": "
+									+ projectMetric.getValue()
+									+ " correctly saved into db");
+					index++;
+				}
+
+				index = 1;
+				List<ProjectMetric> adaptiveEccPeriods = projectMetrics
+						.getECCPeriodBased(pProject, periodLength, periodType,
+								false);
+
+				for (ProjectMetric projectMetric : adaptiveEccPeriods) {
+					projecMetricDAO.saveMetric(projectMetric);
+					System.out
+							.println("Metric Extended Code Change Model calculated with Adaptive Static Entropy for period no. "
+									+ index
+									+ ": "
+									+ projectMetric.getValue()
+									+ " correctly saved into db");
+					index++;
+				}
+
+			} else if (eccmModality
+					.equals(PreferenceConstants.ECCM_MODIFICATION_VALUE)) {
 				int modificationLimit = Preferences.getECCMModificationLimit();
-				
+
 				System.out.println("ECCM-modification: ");
-			} else if(eccmModality.equals(PreferenceConstants.ECCM_BURST_VALUE)) {
+			} else if (eccmModality
+					.equals(PreferenceConstants.ECCM_BURST_VALUE)) {
 				// calculate clusters of changes
 				// call eccmBurstBased
 				System.out.println("ECCM-burst: ");
