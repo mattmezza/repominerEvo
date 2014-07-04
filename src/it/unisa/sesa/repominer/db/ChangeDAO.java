@@ -40,28 +40,6 @@ public class ChangeDAO {
 		return change;
 	}
 
-	// /**
-	// * This method return all commit occurred in project passed as parameter,
-	// * filled by the start and the end date specified in History Metric
-	// * Calculator preference panel
-	// *
-	// * @param pProject
-	// * @return A list of Change objects
-	// */
-	// public List<Change> getChangesByDateInPreferences(Project pProject) {
-	// IPreferenceStore store = Activator.getDefault().getPreferenceStore();
-	// String startDate = store.getString("bccStart");
-	// String endDate = store.getString("bccEnd");
-	//
-	// Connection connection = ConnectionPool.getInstance().getConnection();
-	// EntityManager em = EntityManager.getInstance(connection);
-	// List<Change> changes = em.find(Change.class,
-	// "where project=? and commit_date between ? and ?",
-	// pProject.getId(), startDate, endDate);
-	// ConnectionPool.getInstance().releaseConnection(connection);
-	// return changes;
-	// }
-
 	/**
 	 * This method return all commit occurred between two given dates in project
 	 * passed as parameter
@@ -87,7 +65,8 @@ public class ChangeDAO {
 	 * parameter
 	 * 
 	 * @param pProject
-	 * @return A Date (first in project)
+	 * @return A Date (first in project); return current date if query get a
+	 *         null Change
 	 */
 	public Date getProjectStartDate(Project pProject) {
 		Connection connection = ConnectionPool.getInstance().getConnection();
@@ -96,6 +75,9 @@ public class ChangeDAO {
 				"where project=? order by commit_date ASC limit 1",
 				pProject.getId());
 		ConnectionPool.getInstance().releaseConnection(connection);
+		if (change == null) {
+			return new Date();
+		}
 		return change.getCommitDate();
 	}
 
@@ -104,7 +86,8 @@ public class ChangeDAO {
 	 * parameter
 	 * 
 	 * @param pProject
-	 * @return A Date (last in project)
+	 * @return A Date (last in project); return current date if query get a null
+	 *         change
 	 */
 	public Date getProjectEndDate(Project pProject) {
 		Connection connection = ConnectionPool.getInstance().getConnection();
@@ -113,6 +96,9 @@ public class ChangeDAO {
 				"where project=? order by commit_date DESC limit 1",
 				pProject.getId());
 		ConnectionPool.getInstance().releaseConnection(connection);
+		if (change == null) {
+			return new Date();
+		}
 		return change.getCommitDate();
 	}
 

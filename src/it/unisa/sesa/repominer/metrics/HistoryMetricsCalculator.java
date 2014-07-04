@@ -29,8 +29,7 @@ public class HistoryMetricsCalculator {
 
 		ProjectMetric nrMetric = projectMetrics.getNumberOfRevision(pProject);
 		projecMetricDAO.saveMetric(nrMetric);
-		System.out.println("NR = " + nrMetric.getValue()
-				+ " saved");
+		System.out.println("NR = " + nrMetric.getValue() + " saved");
 
 		Date periodStart = null;
 		Date periodEnd = null;
@@ -40,8 +39,7 @@ public class HistoryMetricsCalculator {
 			ProjectMetric bcc = projectMetrics.getBCCMMetric(pProject,
 					periodStart, periodEnd);
 			projecMetricDAO.saveMetric(bcc);
-			System.out.println("BCCM = "
-					+ bcc.getValue() + " saved");
+			System.out.println("BCCM = " + bcc.getValue() + " saved");
 		} catch (ParseException e) {
 			System.err
 					.println("BCCM: invalid value for period start/end field into preferences page.");
@@ -86,8 +84,8 @@ public class HistoryMetricsCalculator {
 
 				for (ProjectMetric projectMetric : adaptiveEccPeriods) {
 					projecMetricDAO.saveMetric(projectMetric);
-					System.out.println("Adaptive ECCM period #" + index
-							+ " = " + projectMetric.getValue() + " saved");
+					System.out.println("Adaptive ECCM period #" + index + " = "
+							+ projectMetric.getValue() + " saved");
 					index++;
 				}
 			} catch (IntegerPreferenceException ex) {
@@ -102,7 +100,8 @@ public class HistoryMetricsCalculator {
 								true);
 				int index = 1;
 				if (staticEccPeriods.isEmpty()) {
-					System.err.println("ECCM: no file has changed (0.0 value)!");
+					System.err
+							.println("ECCM: no file has changed (0.0 value)!");
 				}
 				for (ProjectMetric projectMetric : staticEccPeriods) {
 					projecMetricDAO.saveMetric(projectMetric);
@@ -117,7 +116,8 @@ public class HistoryMetricsCalculator {
 								false);
 
 				if (adaptiveEccPeriods.isEmpty()) {
-					System.out.println("ECCM: ECCM: no file has changed (0.0 value)!");
+					System.out
+							.println("ECCM: no file has changed (0.0 value)!");
 				}
 				for (ProjectMetric projectMetric : adaptiveEccPeriods) {
 					projecMetricDAO.saveMetric(projectMetric);
@@ -137,7 +137,8 @@ public class HistoryMetricsCalculator {
 								true);
 				int index = 1;
 				if (staticEccPeriods.isEmpty()) {
-					System.err.println("ECCM: no file has changed (0.0 value)!");
+					System.err
+							.println("ECCM: no file has changed or not burst detected (0.0 value)!");
 				}
 				for (ProjectMetric projectMetric : staticEccPeriods) {
 					projecMetricDAO.saveMetric(projectMetric);
@@ -151,12 +152,13 @@ public class HistoryMetricsCalculator {
 						.getECCBurstBased(pProject, epsValue, minPointsValue,
 								false);
 				if (adaptiveEccPeriods.isEmpty()) {
-					System.err.println("ECCM: no file has changedor not burst detected (0.0 value)!");
+					System.err
+							.println("ECCM: no file has changed or not burst detected (0.0 value)!");
 				}
 				for (ProjectMetric projectMetric : adaptiveEccPeriods) {
 					projecMetricDAO.saveMetric(projectMetric);
-					System.out.println("Adaptive ECCM burst period #" + index + " = "
-							+ projectMetric.getValue() + " saved");
+					System.out.println("Adaptive ECCM burst period #" + index
+							+ " = " + projectMetric.getValue() + " saved");
 					index++;
 				}
 			} catch (IntegerPreferenceException e) {
@@ -190,8 +192,7 @@ public class HistoryMetricsCalculator {
 		nauth.setStart(startDate);
 		nauth.setEnd(endDate);
 		packageMetricDAO.saveMetric(nauth);
-		System.out.println("NAUTH = " + NAUTH
-				+ " saved");
+		System.out.println("NAUTH = " + NAUTH + " saved");
 
 		double changeSetSize = packageMetrics
 				.getMeanDimensionOfModifiedFiles(pSourceContainer);
@@ -205,8 +206,8 @@ public class HistoryMetricsCalculator {
 		meanChangeSetSize.setStart(startDate);
 		meanChangeSetSize.setEnd(endDate);
 		packageMetricDAO.saveMetric(meanChangeSetSize);
-		System.out.println("mean_CHANGE_SET_SIZE = " + changeSetSize
-				+ " saved");
+		System.out
+				.println("mean_CHANGE_SET_SIZE = " + changeSetSize + " saved");
 
 		double mean_NCHANGE_value = packageMetrics
 				.getMeanNumberOfChange(pSourceContainer);
@@ -220,8 +221,7 @@ public class HistoryMetricsCalculator {
 		meanNChange.setStart(startDate);
 		meanNChange.setEnd(endDate);
 		packageMetricDAO.saveMetric(meanNChange);
-		System.out.println("mean_NCHANGE = " + mean_NCHANGE_value
-				+ " saved");
+		System.out.println("mean_NCHANGE = " + mean_NCHANGE_value + " saved");
 
 		double mean_NREF_value = packageMetrics
 				.getMeanNumberOfChangeForRefactoring(pSourceContainer);
@@ -235,8 +235,7 @@ public class HistoryMetricsCalculator {
 		meanNRefMetric.setStart(startDate);
 		meanNRefMetric.setEnd(endDate);
 		packageMetricDAO.saveMetric(meanNRefMetric);
-		System.out.println("mean_NREF = " + mean_NREF_value
-				+ " saved");
+		System.out.println("mean_NREF = " + mean_NREF_value + " saved");
 
 		double mean_NFIX_value = packageMetrics
 				.getMeanNumberOfChangeForBugFix(pSourceContainer);
@@ -250,8 +249,7 @@ public class HistoryMetricsCalculator {
 		meanNFixMetric.setStart(startDate);
 		meanNFixMetric.setEnd(endDate);
 		packageMetricDAO.saveMetric(meanNFixMetric);
-		System.out.println("mean_NFIX = " + mean_NFIX_value
-				+ " saved");
+		System.out.println("mean_NFIX = " + mean_NFIX_value + " saved");
 
 		Double[] info = packageMetrics
 				.getInsertionsAndDelitionsInfo(pSourceContainer);
@@ -266,8 +264,7 @@ public class HistoryMetricsCalculator {
 		sumInsertionsMetric.setStart(startDate);
 		sumInsertionsMetric.setEnd(endDate);
 		packageMetricDAO.saveMetric(sumInsertionsMetric);
-		System.out.println("Sum_LINES = " + sum
-				+ " saved");
+		System.out.println("Sum_LINES = " + sum + " saved");
 
 		Double mean = info[1];
 		PackageMetric meanInsertionsMetric = new PackageMetric();
@@ -279,8 +276,7 @@ public class HistoryMetricsCalculator {
 		meanInsertionsMetric.setStart(startDate);
 		meanInsertionsMetric.setEnd(endDate);
 		packageMetricDAO.saveMetric(meanInsertionsMetric);
-		System.out.println("Mean_LINES = " + mean
-				+ " saved");
+		System.out.println("Mean_LINES = " + mean + " saved");
 
 		Double max = info[2];
 		PackageMetric maxInsertionsMetric = new PackageMetric();
@@ -292,8 +288,7 @@ public class HistoryMetricsCalculator {
 		maxInsertionsMetric.setStart(startDate);
 		maxInsertionsMetric.setEnd(endDate);
 		packageMetricDAO.saveMetric(maxInsertionsMetric);
-		System.out.println("Max_LINES = " + max
-				+ " saved");
+		System.out.println("Max_LINES = " + max + " saved");
 
 	}
 }
