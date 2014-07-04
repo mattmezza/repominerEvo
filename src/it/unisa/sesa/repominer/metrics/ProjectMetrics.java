@@ -36,7 +36,8 @@ public class ProjectMetrics {
 	 * Calculate the NR metric, that represents the system number of revision
 	 * 
 	 * @param pProject
-	 * @return The NR metric
+	 *            project analyzed
+	 * @return the NR metric value
 	 */
 	public ProjectMetric getNumberOfRevision(Project pProject) {
 		List<Change> changes = this.changeDAO.getChangesOfProject(pProject);
@@ -50,6 +51,21 @@ public class ProjectMetrics {
 		return nr;
 	}
 
+	/**
+	 * This method break history into burst based periods and then calculates
+	 * the value of ECC Model on this periods
+	 * 
+	 * @param pProject
+	 *            project analyzed
+	 * @param pEps
+	 *            eps parameter for dbscan analysis
+	 * @param pMinPoints
+	 *            minPoint parameter for dbscan analysis
+	 * @param pIsStatic
+	 *            if true calculates ECCM with Normalized Static Entropy; if
+	 *            false calculates ECCM with Adaptive Sizing Entropy
+	 * @return a list of ECC Model values
+	 */
 	public List<ProjectMetric> getECCBurstBased(Project pProject, int pEps,
 			int pMinPoints, boolean pIsStatic) {
 		List<Change> projectChanges = this.changeDAO
@@ -72,7 +88,7 @@ public class ProjectMetrics {
 			List<ChangePoint> clusterPoints = cluster.getPoints();
 			Date clusterStartDate = clusterPoints.get(0).getChange()
 					.getCommitDate();
-			Date clusterEndDate = clusterPoints.get(clusterPoints.size()-1)
+			Date clusterEndDate = clusterPoints.get(clusterPoints.size() - 1)
 					.getChange().getCommitDate();
 			double eccValue = this.calculateECCMValue(pProject,
 					clusterStartDate, clusterEndDate, pIsStatic);
@@ -99,11 +115,15 @@ public class ProjectMetrics {
 	/**
 	 * This method calculate the value of BCC Metric; it calculates this value
 	 * only considering changes occurred in time based period between the start
-	 * and the end date specified in the preference panel
+	 * and the end date specified in preference panel
 	 * 
-	 * @param pSourceContainer
-	 * @return The float value of BCC Metric for time period specified in
-	 *         preference panel
+	 * @param pProject
+	 *            project analyzed
+	 * @param pPeriodStart
+	 *            start date for analysis
+	 * @param pPeriodEnd
+	 *            end date for analysis
+	 * @return BCC Metric
 	 */
 	public ProjectMetric getBCCMMetric(Project pProject, Date pPeriodStart,
 			Date pPeriodEnd) {
@@ -120,14 +140,17 @@ public class ProjectMetrics {
 	}
 
 	/**
-	 * This method calculate the BCC value for package passed as parameter
+	 * This method calculate the BCC value for project passed as parameter
 	 * considering only changes occurred between two Date always passed as
 	 * parameters
 	 * 
-	 * @param pSourceContainer
+	 * @param pProject
+	 *            project analyzed
 	 * @param pPeriodStart
+	 *            start date for analysis
 	 * @param pPeriodEnd
-	 * @return The float value for BCC Metric of this period
+	 *            end date for analysis
+	 * @return value for BCC Metric of this period
 	 */
 	private double calculateBCCMMetricValue(Project pProject,
 			Date pPeriodStart, Date pPeriodEnd) {
@@ -209,8 +232,13 @@ public class ProjectMetrics {
 	 * calendar time from the start of the project. The length of a single
 	 * interval time is specified in preference panel
 	 * 
-	 * @param pSourceContainer
-	 * @return A list of Value
+	 * @param pProject
+	 *            project analyzed
+	 * @param periodLength
+	 *            length of period for analysis
+	 * @param periodType
+	 *            weeks, months or year for period of analysis
+	 * @return some BCC Model values time period based
 	 */
 	public List<ProjectMetric> getBCCPeriodBased(Project pProject,
 			int periodLength, String periodType) {
@@ -229,7 +257,7 @@ public class ProjectMetrics {
 		Calendar startDate = Utils.dateToCalendar(this.changeDAO
 				.getProjectStartDate(pProject));
 		Date endDate = this.changeDAO.getProjectEndDate(pProject);
-		
+
 		startDate.roll(GregorianCalendar.DAY_OF_MONTH, -1);
 		while (startDate.getTime().before(endDate)) {
 			startDate.add(GregorianCalendar.DAY_OF_MONTH, 1);
@@ -255,10 +283,11 @@ public class ProjectMetrics {
 	}
 
 	/**
-	 * This method get a list of class that have been changed in a project
+	 * This method get a list of types that have been changed in a project
 	 * 
-	 * @param pSourceContainer
-	 * @return A list of Type objects
+	 * @param pProject
+	 *            project analyzed
+	 * @return all types changed
 	 */
 	private List<Type> getModifiedClassForProject(Project pProject) {
 		List<Type> modifiedClassesForProject = new ArrayList<>();
@@ -292,6 +321,24 @@ public class ProjectMetrics {
 		return modifiedClassesForProject;
 	}
 
+	/**
+	 * This method calculate a set of values of ECC Model using time based
+	 * periods method; it calculates this values broken the history of changes
+	 * into equal length periods based on calendar time from the start of the
+	 * project. The length of a single interval time is specified in preference
+	 * panel
+	 * 
+	 * @param pProject
+	 *            project analyzed
+	 * @param pPeriod
+	 *            length of period for analysis
+	 * @param periodType
+	 *            weeks, months or years for period of analysis
+	 * @param pIsStatic
+	 *            if true calculates ECCM with Normalized Static Entropy; if
+	 *            false calculates ECCM with Adaptive Sizing Entropy
+	 * @return some ECC Model values calculated with time based periods method
+	 */
 	public List<ProjectMetric> getECCPeriodBased(Project pProject, int pPeriod,
 			String periodType, Boolean pIsStatic) {
 
@@ -340,20 +387,21 @@ public class ProjectMetrics {
 		return listECC;
 	}
 
-	
-	
 	/**
-	 * This method calculate the ECC value for package passed as parameter
+	 * This method calculate the ECC value for project passed as parameter
 	 * considering only changes occurred between two Dates always passed as
 	 * parameters
 	 * 
-	 * @param pSourceContainer
+	 * @param pProject
+	 *            project analyzed
 	 * @param pStart
+	 *            start date for analysis
 	 * @param pEnd
+	 *            end date for analysis
 	 * @param pIsStatic
 	 *            if true calculated with Normalized Static Entropy; if false
 	 *            calculated with our Adaptive Sizing Entropy
-	 * @return The double value for ECC Metric of this period
+	 * @return the double value for ECC Metric of this period
 	 */
 	private double calculateECCMValue(Project pProject, Date pStart, Date pEnd,
 			Boolean pIsStatic) {
@@ -433,6 +481,19 @@ public class ProjectMetrics {
 		return ECCMetric;
 	}
 
+	/**
+	 * This method calculate the ECC value for project to analyze considering
+	 * only changes passed as parameters
+	 * 
+	 * @param pProject
+	 *            project analyzed
+	 * @param changes
+	 *            changes for ECC Model analysis
+	 * @param pIsStatic
+	 *            if true calculated with Normalized Static Entropy; if false
+	 *            calculated with our Adaptive Sizing Entropy
+	 * @return the double value for ECC Metric of this period
+	 */
 	private double calculateECCMValue(Project pProject, List<Change> changes,
 			boolean pIsStatic) {
 
@@ -506,6 +567,24 @@ public class ProjectMetrics {
 		return eccmValue;
 	}
 
+	/**
+	 * This method calculate a set of values of ECC Model using modification
+	 * limit period based; it calculates this values broken the history of
+	 * changes into period based on number of modifications specified in
+	 * preferences panel. To prevent a period where little development may have
+	 * occurred from spanning a long time, we impose a limit of 3 months on a
+	 * period even if the modification limit was no reached
+	 * 
+	 * @param pProject
+	 *            project analyzed
+	 * @param pLimit
+	 *            limit of modifications for breaking periods
+	 * @param pIsStatic
+	 *            if true calculated with Normalized Static Entropy; if false
+	 *            calculated with our Adaptive Sizing Entropy
+	 * @return some ECC Model value calculated with modification limit period
+	 *         method
+	 */
 	public List<ProjectMetric> getECCModificationBased(Project pProject,
 			int pLimit, boolean pIsStatic) {
 		List<ProjectMetric> eccmMetrics = new ArrayList<>();

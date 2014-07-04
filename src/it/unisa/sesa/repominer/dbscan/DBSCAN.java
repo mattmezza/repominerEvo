@@ -8,11 +8,24 @@ import java.util.Set;
 /**
  * DBSCAN (density-based spatial clustering of applications with noise)
  * algorithm
- * 
+ * <p>
  * The DBSCAN algorithm forms clusters based on the idea of density
  * connectivity, i.e. a point p is density connected to another point q, if
- * there exists a chain of points p_i, with i=1...n and p_1=p and p_n=q, such
- * that each pair p_{i+1} is directly density-reachable from p_i.
+ * there exists a chain of points p<sub>i</sub>, with i=1...n and
+ * p<sub>1</sub>=p and p<sub>n</sub>=q, such that each pair p<sub>i+1</sub> is
+ * directly density-reachable from p<sub>i</sub>. A point q is directly
+ * density-reachable from point p if it is in the &epsilon;-neighborhood or this
+ * point.
+ * <p>
+ * Any point that is not density-reachable from a formed cluster is treated as
+ * noise, and will thus not be present in the results.
+ * <p>
+ * The algorithm requires two parameters:
+ * <ul>
+ * <li>eps: the distance that defines the
+ * <li>epsilon-neighborhood of a point minPoints: the minimum number of
+ * density-connected points required to form a cluster
+ * </ul>
  * 
  * @author giograno
  * 
@@ -24,6 +37,14 @@ public class DBSCAN {
 	/* Minimum number of points needed for a cluster */
 	private int minPoints;
 
+	/**
+	 * Creates a new instance of a DBSCAN
+	 * 
+	 * @param eps
+	 *            maximum radius of the neighborhood to be considered
+	 * @param minPoints
+	 *            minimum number of points needed for a cluster
+	 */
 	public DBSCAN(double eps, int minPoints) {
 		this.eps = eps;
 		this.minPoints = minPoints;
