@@ -16,6 +16,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * This class is responsible to calculate all the history metrics relative to a
+ * package.
+ * 
+ * @author RepominerEvo Team
+ * 
+ */
+
 public class PackageMetrics {
 
 	private ChangeDAO changeDAO = new ChangeDAO();

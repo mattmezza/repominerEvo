@@ -26,6 +26,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * This class is responsible to calculate all the history metrics relative to a
+ * project.
+ * 
+ * @author RepominerEvo Team
+ * 
+ */
+
 public class ProjectMetrics {
 
 	private ChangeDAO changeDAO = new ChangeDAO();
@@ -71,7 +79,7 @@ public class ProjectMetrics {
 			int pMinPoints, boolean pIsStatic) throws NoChangesException {
 		List<Change> projectChanges = this.changeDAO
 				.getChangesOfProject(pProject);
-		if(projectChanges.isEmpty()) {
+		if (projectChanges.isEmpty()) {
 			throw new NoChangesException();
 		}
 		Calendar startDate = Utils.dateToCalendar(projectChanges.get(0)

@@ -18,6 +18,14 @@ import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * This class instantiates and calls methods of {@link ProjectMetrics} and
+ * {@link PackageMetrics}.
+ * 
+ * @author RepominerEvo Team
+ * 
+ */
+
 public class HistoryMetricsCalculator {
 
 	/**

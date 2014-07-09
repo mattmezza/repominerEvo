@@ -15,10 +15,21 @@ public class Utils {
 	private static final Pattern PATTERN_REFACTORING = Pattern.compile(
 			".*[rR][eE][fF][aA][cC][tT][oO][rR].*", Pattern.DOTALL);
 
+	
+	/**
+	 * Checks whether or not a message is likely to be a refactoring one.
+	 * @param msg The message to check.
+	 * @return true if message is refactoring, false otherwise.
+	 */
 	public static boolean msgIsRefactoring(String msg) {
 		return Utils.PATTERN_REFACTORING.matcher(msg).matches();
 	}
-
+	
+	/**
+	 * Checks whether or not a message is likely to be a bug-fixing one.
+	 * @param msg The message to check.
+	 * @return true if message is bug-fixing, false otherwise.
+	 */
 	public static boolean msgIsBugFixing(String msg) {
 		return Utils.PATTERN_BUG_FIXING.matcher(msg).matches();
 	}
