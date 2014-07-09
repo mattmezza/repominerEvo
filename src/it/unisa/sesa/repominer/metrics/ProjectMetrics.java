@@ -14,6 +14,7 @@ import it.unisa.sesa.repominer.db.entities.Type;
 import it.unisa.sesa.repominer.dbscan.ChangePoint;
 import it.unisa.sesa.repominer.dbscan.Cluster;
 import it.unisa.sesa.repominer.dbscan.DBSCAN;
+import it.unisa.sesa.repominer.metrics.exception.NoChangesException;
 import it.unisa.sesa.repominer.preferences.PreferenceConstants;
 import it.unisa.sesa.repominer.util.Utils;
 
@@ -67,9 +68,12 @@ public class ProjectMetrics {
 	 * @return a list of ECC Model values
 	 */
 	public List<ProjectMetric> getECCBurstBased(Project pProject, int pEps,
-			int pMinPoints, boolean pIsStatic) {
+			int pMinPoints, boolean pIsStatic) throws NoChangesException {
 		List<Change> projectChanges = this.changeDAO
 				.getChangesOfProject(pProject);
+		if(projectChanges.isEmpty()) {
+			throw new NoChangesException();
+		}
 		Calendar startDate = Utils.dateToCalendar(projectChanges.get(0)
 				.getCommitDate());
 
@@ -85,28 +89,33 @@ public class ProjectMetrics {
 		DBSCAN clusterizator = new DBSCAN(pEps, pMinPoints);
 		List<Cluster> clusters = clusterizator.cluster(changePoints);
 		for (Cluster cluster : clusters) {
-			List<ChangePoint> clusterPoints = cluster.getPoints();
-			Date clusterStartDate = clusterPoints.get(0).getChange()
-					.getCommitDate();
-			Date clusterEndDate = clusterPoints.get(clusterPoints.size() - 1)
-					.getChange().getCommitDate();
-			double eccValue = this.calculateECCMValue(pProject,
-					clusterStartDate, clusterEndDate, pIsStatic);
-			ProjectMetric currentEccm = new ProjectMetric();
-			currentEccm.setValue(new Double(eccValue));
-			currentEccm.setStart(clusterStartDate);
-			currentEccm.setEnd(clusterEndDate);
+			try {
+				List<ChangePoint> clusterPoints = cluster.getPoints();
+				Date clusterStartDate = clusterPoints.get(0).getChange()
+						.getCommitDate();
+				Date clusterEndDate = clusterPoints
+						.get(clusterPoints.size() - 1).getChange()
+						.getCommitDate();
+				double eccValue = this.calculateECCMValue(pProject,
+						clusterStartDate, clusterEndDate, pIsStatic);
+				ProjectMetric currentEccm = new ProjectMetric();
+				currentEccm.setValue(new Double(eccValue));
+				currentEccm.setStart(clusterStartDate);
+				currentEccm.setEnd(clusterEndDate);
 
-			if (pIsStatic) {
-				currentEccm.setDescription(Metric.ECCM_STATIC_DESCRIPTION);
-				currentEccm.setName(Metric.ECCM_STATIC_NAME);
-			} else {
-				currentEccm.setDescription(Metric.ECCM_DESCRIPTION);
-				currentEccm.setName(Metric.ECCM_NAME);
+				if (pIsStatic) {
+					currentEccm.setDescription(Metric.ECCM_STATIC_DESCRIPTION);
+					currentEccm.setName(Metric.ECCM_STATIC_NAME);
+				} else {
+					currentEccm.setDescription(Metric.ECCM_DESCRIPTION);
+					currentEccm.setName(Metric.ECCM_NAME);
+				}
+
+				currentEccm.setProjectId(pProject.getId());
+				listECC.add(currentEccm);
+			} catch (NoChangesException ex) {
+				System.err.println(ex.getMessage());
 			}
-
-			currentEccm.setProjectId(pProject.getId());
-			listECC.add(currentEccm);
 		}
 
 		return listECC;
@@ -126,7 +135,7 @@ public class ProjectMetrics {
 	 * @return BCC Metric
 	 */
 	public ProjectMetric getBCCMMetric(Project pProject, Date pPeriodStart,
-			Date pPeriodEnd) {
+			Date pPeriodEnd) throws NoChangesException {
 		double bccValue = this.calculateBCCMMetricValue(pProject, pPeriodStart,
 				pPeriodEnd);
 		ProjectMetric bccmMetric = new ProjectMetric();
@@ -153,7 +162,7 @@ public class ProjectMetrics {
 	 * @return value for BCC Metric of this period
 	 */
 	private double calculateBCCMMetricValue(Project pProject,
-			Date pPeriodStart, Date pPeriodEnd) {
+			Date pPeriodStart, Date pPeriodEnd) throws NoChangesException {
 
 		List<Type> modifiedClassForProject = this
 				.getModifiedClassForProject(pProject);
@@ -165,7 +174,7 @@ public class ProjectMetrics {
 				pProject, pPeriodStart, pPeriodEnd);
 
 		if (changes.isEmpty()) {
-			return 0.0;
+			throw new NoChangesException();
 		}
 
 		int FIcounter = 0;
@@ -260,23 +269,27 @@ public class ProjectMetrics {
 
 		startDate.roll(GregorianCalendar.DAY_OF_MONTH, -1);
 		while (startDate.getTime().before(endDate)) {
-			startDate.add(GregorianCalendar.DAY_OF_MONTH, 1);
-			Date auxStart = startDate.getTime();
-			startDate.add(gregorianInterval, periodLength);
-			Date auxEnd = startDate.getTime();
-			if (startDate.getTime().after(endDate)) {
-				auxEnd = endDate;
+			try {
+				startDate.add(GregorianCalendar.DAY_OF_MONTH, 1);
+				Date auxStart = startDate.getTime();
+				startDate.add(gregorianInterval, periodLength);
+				Date auxEnd = startDate.getTime();
+				if (startDate.getTime().after(endDate)) {
+					auxEnd = endDate;
+				}
+				double bccValue = this.calculateBCCMMetricValue(pProject,
+						auxStart, auxEnd);
+				ProjectMetric currentBccm = new ProjectMetric();
+				currentBccm.setValue(new Double(bccValue));
+				currentBccm.setStart(auxStart);
+				currentBccm.setEnd(auxEnd);
+				currentBccm.setDescription(Metric.BCCM_DESCRIPTION);
+				currentBccm.setName(Metric.BCCM_NAME);
+				currentBccm.setProjectId(pProject.getId());
+				listBCC.add(currentBccm);
+			} catch (NoChangesException ex) {
+				System.err.println(ex.getMessage());
 			}
-			double bccValue = this.calculateBCCMMetricValue(pProject, auxStart,
-					auxEnd);
-			ProjectMetric currentBccm = new ProjectMetric();
-			currentBccm.setValue(new Double(bccValue));
-			currentBccm.setStart(auxStart);
-			currentBccm.setEnd(auxEnd);
-			currentBccm.setDescription(Metric.BCCM_DESCRIPTION);
-			currentBccm.setName(Metric.BCCM_NAME);
-			currentBccm.setProjectId(pProject.getId());
-			listBCC.add(currentBccm);
 		}
 
 		return listBCC;
@@ -361,27 +374,31 @@ public class ProjectMetrics {
 
 		startDate.roll(GregorianCalendar.DAY_OF_MONTH, -1);
 		while (startDate.getTime().before(endDate)) {
-			startDate.add(GregorianCalendar.DAY_OF_MONTH, 1);
-			Date auxStart = startDate.getTime();
-			startDate.add(gregorianInterval, pPeriod);
-			Date auxEnd = startDate.getTime();
-			double eccValue = this.calculateECCMValue(pProject, auxStart,
-					auxEnd, pIsStatic);
-			ProjectMetric currentEccm = new ProjectMetric();
-			currentEccm.setValue(new Double(eccValue));
-			currentEccm.setStart(auxStart);
-			currentEccm.setEnd(auxEnd);
+			try {
+				startDate.add(GregorianCalendar.DAY_OF_MONTH, 1);
+				Date auxStart = startDate.getTime();
+				startDate.add(gregorianInterval, pPeriod);
+				Date auxEnd = startDate.getTime();
+				double eccValue = this.calculateECCMValue(pProject, auxStart,
+						auxEnd, pIsStatic);
+				ProjectMetric currentEccm = new ProjectMetric();
+				currentEccm.setValue(new Double(eccValue));
+				currentEccm.setStart(auxStart);
+				currentEccm.setEnd(auxEnd);
 
-			if (pIsStatic) {
-				currentEccm.setDescription(Metric.ECCM_STATIC_DESCRIPTION);
-				currentEccm.setName(Metric.ECCM_STATIC_NAME);
-			} else {
-				currentEccm.setDescription(Metric.ECCM_DESCRIPTION);
-				currentEccm.setName(Metric.ECCM_NAME);
+				if (pIsStatic) {
+					currentEccm.setDescription(Metric.ECCM_STATIC_DESCRIPTION);
+					currentEccm.setName(Metric.ECCM_STATIC_NAME);
+				} else {
+					currentEccm.setDescription(Metric.ECCM_DESCRIPTION);
+					currentEccm.setName(Metric.ECCM_NAME);
+				}
+
+				currentEccm.setProjectId(pProject.getId());
+				listECC.add(currentEccm);
+			} catch (NoChangesException ex) {
+				System.err.println(ex.getMessage());
 			}
-
-			currentEccm.setProjectId(pProject.getId());
-			listECC.add(currentEccm);
 		}
 
 		return listECC;
@@ -404,7 +421,7 @@ public class ProjectMetrics {
 	 * @return the double value for ECC Metric of this period
 	 */
 	private double calculateECCMValue(Project pProject, Date pStart, Date pEnd,
-			Boolean pIsStatic) {
+			Boolean pIsStatic) throws NoChangesException {
 
 		List<Type> modifiedClassForProject = this
 				.getModifiedClassForProject(pProject);
@@ -416,7 +433,7 @@ public class ProjectMetrics {
 				pProject, pStart, pEnd);
 
 		if (changes.isEmpty()) {
-			return 0.0;
+			throw new NoChangesException();
 		}
 
 		double FIcounter = 0; // Total of FI changes occurred int this period
@@ -495,14 +512,14 @@ public class ProjectMetrics {
 	 * @return the double value for ECC Metric of this period
 	 */
 	private double calculateECCMValue(Project pProject, List<Change> changes,
-			boolean pIsStatic) {
+			boolean pIsStatic) throws NoChangesException {
 
 		List<Type> modifiedClassForProject = this
 				.getModifiedClassForProject(pProject);
 		Map<String, Integer> occurrenceTable = new HashMap<>();
 
 		if (changes.isEmpty()) {
-			return 0.0;
+			throw new NoChangesException();
 		}
 
 		double FIcounter = 0; // Total of FI changes occurred int this period
@@ -586,7 +603,7 @@ public class ProjectMetrics {
 	 *         method
 	 */
 	public List<ProjectMetric> getECCModificationBased(Project pProject,
-			int pLimit, boolean pIsStatic) {
+			int pLimit, boolean pIsStatic) throws NoChangesException {
 		List<ProjectMetric> eccmMetrics = new ArrayList<>();
 		List<Change> projectChanges = this.changeDAO
 				.getChangesOfProject(pProject);
@@ -597,7 +614,7 @@ public class ProjectMetrics {
 		if (!projectChanges.isEmpty()) {
 			periodStart = projectChanges.get(0).getCommitDate();
 		} else {
-			return eccmMetrics;
+			throw new NoChangesException();
 		}
 		for (int i = 0; i < projectChanges.size(); i++) {
 			Change currentChange = projectChanges.get(i);

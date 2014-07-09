@@ -8,6 +8,7 @@ import it.unisa.sesa.repominer.db.entities.PackageMetric;
 import it.unisa.sesa.repominer.db.entities.Project;
 import it.unisa.sesa.repominer.db.entities.ProjectMetric;
 import it.unisa.sesa.repominer.db.entities.SourceContainer;
+import it.unisa.sesa.repominer.metrics.exception.NoChangesException;
 import it.unisa.sesa.repominer.preferences.PreferenceConstants;
 import it.unisa.sesa.repominer.preferences.Preferences;
 import it.unisa.sesa.repominer.preferences.exceptions.IntegerPreferenceException;
@@ -44,6 +45,8 @@ public class HistoryMetricsCalculator {
 		} catch (ParseException e) {
 			System.err
 					.println("BCCM: invalid value for period start/end field into preferences page.");
+		} catch (NoChangesException ex) {
+			System.err.println(ex.getMessage());
 		}
 
 		try {
@@ -132,6 +135,8 @@ public class HistoryMetricsCalculator {
 				}
 			} catch (IntegerPreferenceException ex) {
 				System.err.println(ex.getMessage());
+			} catch (NoChangesException ex) {
+				System.err.println(ex.getMessage());
 			}
 		} else if (eccmModality.equals(PreferenceConstants.ECCM_BURST_VALUE)) {
 			try {
@@ -168,6 +173,8 @@ public class HistoryMetricsCalculator {
 				}
 			} catch (IntegerPreferenceException e) {
 				e.printStackTrace();
+			} catch (NoChangesException ex) {
+				System.err.println(ex.getMessage());
 			}
 		}
 

@@ -6,6 +6,7 @@ import it.unisa.sesa.repominer.db.entities.SourceContainer;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 import net.sf.jeasyorm.BasicEntityManager;
@@ -86,12 +87,13 @@ public class PackageMetricDAO {
 				em.insert(pPackageMetric);
 			} else {
 				pPackageMetric.setMetricId(metric.getId());
+				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 				BasicEntityManager bem = (BasicEntityManager) em;
 				bem.execute(
-						"delete from package_metrics where source_container=? and metric=? and start=? and end=?",
+						"delete from package_metrics where source_container=? and metric=? and `start`=? and `end`=?",
 						pPackageMetric.getPackageId(),
 						pPackageMetric.getMetricId(),
-						pPackageMetric.getStart(), pPackageMetric.getEnd());
+						sdf.format(pPackageMetric.getStart()), sdf.format(pPackageMetric.getEnd()));
 				em.insert(pPackageMetric);
 			}
 			connection.commit();

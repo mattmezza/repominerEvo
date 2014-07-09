@@ -6,6 +6,7 @@ import it.unisa.sesa.repominer.db.entities.ProjectMetric;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 import net.sf.jeasyorm.BasicEntityManager;
@@ -84,12 +85,14 @@ public class ProjectMetricDAO {
 				em.insert(pProjectMetric);
 			} else {
 				pProjectMetric.setMetricId(metric.getId());
+				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 				BasicEntityManager bem = (BasicEntityManager) em;
 				bem.execute(
-						"delete from project_metrics where project=? and metric=? and start=? and end=?",
+						"delete from project_metrics where project=? and metric=? and `start`=? and `end`=?",
 						pProjectMetric.getProjectId(),
 						pProjectMetric.getMetricId(),
-						pProjectMetric.getStart(), pProjectMetric.getEnd());
+						sdf.format(pProjectMetric.getStart()), sdf.format(pProjectMetric.getEnd()));
+//				em.delete(pProjectMetric);
 				em.insert(pProjectMetric);
 
 			}
