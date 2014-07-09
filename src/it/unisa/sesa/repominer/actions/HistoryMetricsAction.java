@@ -39,6 +39,10 @@ public class HistoryMetricsAction implements IWorkbenchWindowActionDelegate {
 	 */
 	public void run(IAction action) {
 		Project p = new ProjectDAO().getProject(1);
+		if (p == null){
+			System.err.println("No project stored into DB");
+			return;
+		}
 		HistoryMetricsCalculator.calculateMetrics(p);
 		List<SourceContainer> sourceContainers = new SourceContainerDAO()
 				.getPackages(p);

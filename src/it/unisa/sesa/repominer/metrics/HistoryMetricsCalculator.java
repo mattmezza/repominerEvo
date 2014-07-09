@@ -148,7 +148,7 @@ public class HistoryMetricsCalculator {
 				int index = 1;
 				if (staticEccPeriods.isEmpty()) {
 					System.err
-							.println("ECCM: no file has changed or not burst detected (0.0 value)!");
+							.println("ECCM-Static: no file has changed or not burst detected (0.0 value)!");
 				}
 				for (ProjectMetric projectMetric : staticEccPeriods) {
 					projecMetricDAO.saveMetric(projectMetric);
@@ -163,7 +163,7 @@ public class HistoryMetricsCalculator {
 								false);
 				if (adaptiveEccPeriods.isEmpty()) {
 					System.err
-							.println("ECCM: no file has changed or not burst detected (0.0 value)!");
+							.println("ECCM-Adaptive: no file has changed or not burst detected (0.0 value)!");
 				}
 				for (ProjectMetric projectMetric : adaptiveEccPeriods) {
 					projecMetricDAO.saveMetric(projectMetric);
