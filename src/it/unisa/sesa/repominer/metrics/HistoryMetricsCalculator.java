@@ -11,6 +11,7 @@ import it.unisa.sesa.repominer.db.entities.SourceContainer;
 import it.unisa.sesa.repominer.preferences.PreferenceConstants;
 import it.unisa.sesa.repominer.preferences.Preferences;
 import it.unisa.sesa.repominer.preferences.exceptions.IntegerPreferenceException;
+import it.unisa.sesa.repominer.preferences.exceptions.PeriodLengthTooLong;
 
 import java.text.ParseException;
 import java.util.Date;
@@ -59,6 +60,8 @@ public class HistoryMetricsCalculator {
 			}
 		} catch (IntegerPreferenceException ex) {
 			System.err.println(ex.getMessage());
+		} catch (PeriodLengthTooLong ex) {
+			System.err.println(ex.getMessage());
 		}
 
 		String eccmModality = Preferences.getECCMModality();
@@ -89,6 +92,8 @@ public class HistoryMetricsCalculator {
 					index++;
 				}
 			} catch (IntegerPreferenceException ex) {
+				System.err.println(ex.getMessage());
+			} catch (PeriodLengthTooLong ex) {
 				System.err.println(ex.getMessage());
 			}
 		} else if (eccmModality

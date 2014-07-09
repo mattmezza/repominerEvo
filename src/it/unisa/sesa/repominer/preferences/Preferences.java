@@ -5,6 +5,7 @@ import java.util.Date;
 
 import it.unisa.sesa.repominer.Activator;
 import it.unisa.sesa.repominer.preferences.exceptions.IntegerPreferenceException;
+import it.unisa.sesa.repominer.preferences.exceptions.PeriodLengthTooLong;
 import it.unisa.sesa.repominer.util.Utils;
 
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -59,12 +60,32 @@ public class Preferences {
 				.getString(PreferenceConstants.PERIOD_END));
 	}
 
-	public static int getPeriodLength() throws IntegerPreferenceException {
+	public static int getPeriodLength() throws IntegerPreferenceException, PeriodLengthTooLong {
 		int length = STORE.getInt(PreferenceConstants.PERIOD_LENGTH);
 		if (length <= 0) {
 			throw new IntegerPreferenceException(
 					PreferenceConstants.PERIOD_LENGTH, length);
 		} else {
+			String periodType = Preferences.getPeriodType();
+			if (periodType.equals(PreferenceConstants.PERIOD_TYPE_WEEK)) {
+				if (length > 4000) {
+					throw new PeriodLengthTooLong(4000, length);
+				} else {
+					return length;
+				}
+			} else if (periodType.equals(PreferenceConstants.PERIOD_TYPE_MONTH)) {
+				if (length > 1000) {
+					throw new PeriodLengthTooLong(1000, length);
+				} else {
+					return length;
+				}
+			} else if (periodType.equals(PreferenceConstants.PERIOD_TYPE_YEAR)) {
+				if (length > 80) {
+					throw new PeriodLengthTooLong(80, length);
+				} else {
+					return length;
+				}
+			}
 			return length;
 		}
 	}
